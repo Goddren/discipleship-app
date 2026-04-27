@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Discipleship — Smart Ministry Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0F1117;--bg2:#161B27;--surface:#1C2235;--surface2:#222840;--surface3:#2A3250;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --gold:#F0B429;--gold2:#D4960A;--gold-soft:rgba(240,180,41,0.11);--gold-glow:rgba(240,180,41,0.22);
+  --cream:#E8E2D4;--cream-dim:#7A7570;--white:#F4F2EE;
+  --green:#22C55E;--green-soft:rgba(34,197,94,0.12);
+  --blue:#3B82F6;--blue-soft:rgba(59,130,246,0.12);
+  --purple:#A855F7;--purple-soft:rgba(168,85,247,0.12);
+  --red:#EF4444;--red-soft:rgba(239,68,68,0.12);
+  --amber:#F59E0B;--amber-soft:rgba(245,158,11,0.12);
+  --r:18px;--r-sm:12px;--rail:72px;
+}
+html,body{height:100%;background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;overflow:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9000}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:var(--rail) 1fr;height:100vh;overflow:hidden}
+
+/* ── ICON RAIL ── */
+.rail{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;overflow:hidden;z-index:100}
+.rail-logo{width:42px;height:42px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:12px;box-shadow:0 4px 18px var(--gold-glow);flex-shrink:0}
+.rb{width:50px;height:50px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:all 0.18s;border:none;background:transparent;position:relative;flex-shrink:0}
+.rb:hover{background:var(--surface)}
+.rb.active{background:var(--gold-soft)}
+.rb.active::before{content:'';position:absolute;left:-1px;top:50%;transform:translateY(-50%);width:3px;height:22px;background:var(--gold);border-radius:0 3px 3px 0}
+.rb-icon{font-size:18px;line-height:1}
+.rb-lbl{font-size:7px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--cream-dim);transition:color 0.18s}
+.rb.active .rb-lbl,.rb:hover .rb-lbl{color:var(--gold)}
+.rb-badge{position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg2)}
+.rail-spacer{flex:1}
+.rail-avatar{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--gold2),#6a3a00);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);cursor:pointer;border:2px solid var(--gold-soft);transition:all 0.2s}
+.rail-avatar:hover{border-color:var(--gold)}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.page{display:none;flex:1;overflow-y:auto;padding:22px 26px 40px;animation:pageIn 0.25s ease both}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page::-webkit-scrollbar{width:4px}
+.page::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.ph-left h1{font-size:24px;font-weight:800;color:var(--white);line-height:1.1}
+.ph-left p{font-size:12px;color:var(--cream-dim);margin-top:3px;font-weight:500}
+.ph-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+/* ── BTNS ── */
+.btn{padding:9px 18px;border-radius:11px;border:none;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--bg)}.btn-gold:hover{background:#e5a820}
+.btn-surface{background:var(--surface2);color:var(--cream-dim)}.btn-surface:hover{background:var(--surface3);color:var(--white)}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--cream-dim)}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-blue{background:var(--blue-soft);color:var(--blue);border:1.5px solid rgba(59,130,246,0.3)}.btn-blue:hover{background:rgba(59,130,246,0.18)}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:8px}
+
+/* ── SEC LABEL ── */
+.sec-lbl{font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.sec-lbl-act{margin-left:auto;font-size:10px;font-weight:700;color:var(--gold);cursor:pointer;text-transform:none;letter-spacing:0}.sec-lbl-act:hover{opacity:0.75}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px}
+.sc{background:var(--surface);border-radius:var(--r);padding:16px 18px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.sc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.3)}
+.sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sc-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.sc-trend{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sc-trend.up{background:var(--green-soft);color:var(--green)}.sc-trend.dn{background:var(--red-soft);color:var(--red)}.sc-trend.fl{background:var(--surface2);color:var(--cream-dim)}
+.sc-val{font-size:26px;font-weight:800;color:var(--white);line-height:1;margin-bottom:2px}
+.sc-lbl{font-size:11px;color:var(--cream-dim);font-weight:600}
+
+/* ── AGENT TILES ── */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-bottom:24px}
+.tile{background:var(--surface);border-radius:var(--r);padding:16px 14px;border:1px solid var(--border);cursor:pointer;transition:all 0.22s;position:relative;overflow:hidden;user-select:none}
+.tile:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.28);border-color:var(--border2)}
+.tile.on{background:var(--surface2);border-color:rgba(240,180,41,0.22)}
+.tile.running{animation:tGlow 2s ease-in-out infinite}
+.tile.scheduled{border-color:rgba(59,130,246,0.28)}
+@keyframes tGlow{0%,100%{box-shadow:0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 22px rgba(34,197,94,0.14)}}
+.tile-glow{position:absolute;top:-18px;right:-18px;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,var(--gold-glow),transparent 70%);opacity:0;transition:opacity 0.3s}
+.tile.on .tile-glow{opacity:1}
+.tile-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.tile-ico{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.2s}
+.tile-tog{width:30px;height:17px;border-radius:9px;background:var(--surface3);border:none;cursor:pointer;position:relative;transition:background 0.22s;flex-shrink:0}
+.tile-tog::after{content:'';position:absolute;width:11px;height:11px;border-radius:50%;background:var(--cream-dim);top:3px;left:3px;transition:all 0.22s;box-shadow:0 1px 3px rgba(0,0,0,0.4)}
+.tile.on .tile-tog{background:var(--gold)}.tile.on .tile-tog::after{left:16px;background:var(--bg)}
+.tile-name{font-size:12px;font-weight:700;color:var(--white);margin-bottom:3px;line-height:1.3}
+.tile-cat{font-size:9px;font-weight:700;color:var(--cream-dim);letter-spacing:0.04em}
+.tile-status{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:9px;font-weight:700;letter-spacing:0.04em}
+.t-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.st-idle .t-dot{background:var(--cream-dim)}.st-on .t-dot{background:var(--gold);box-shadow:0 0 5px var(--gold);animation:p 2s ease-in-out infinite}.st-running .t-dot{background:var(--green);box-shadow:0 0 5px var(--green);animation:p 1s ease-in-out infinite}.st-scheduled .t-dot{background:var(--blue)}
+.st-idle .t-txt{color:var(--cream-dim)}.st-on .t-txt{color:var(--gold)}.st-running .t-txt{color:var(--green)}.st-scheduled .t-txt{color:var(--blue)}
+@keyframes p{0%,100%{opacity:1}50%{opacity:0.28}}
+.tile-next{font-size:8px;color:var(--blue);font-weight:700;margin-top:3px}
+
+/* ── AUTO CARDS ── */
+.auto-list{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.ac{background:var(--surface);border-radius:var(--r-sm);padding:14px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.18s}
+.ac:hover{border-color:var(--border2)}
+.ac.live{border-color:rgba(34,197,94,0.28);background:rgba(34,197,94,0.025)}
+.ac-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ac-body{flex:1;min-width:0}
+.ac-name{font-size:13px;font-weight:700;color:var(--white);margin-bottom:2px}
+.ac-desc{font-size:10px;color:var(--cream-dim);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-chips{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.chip-sm{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.03em}
+.chip-blue{background:var(--blue-soft);color:var(--blue)}.chip-amber{background:var(--amber-soft);color:var(--amber)}.chip-purple{background:var(--purple-soft);color:var(--purple)}.chip-green{background:var(--green-soft);color:var(--green)}
+.ac-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0}
+.ac-time{font-size:9px;color:var(--cream-dim);font-weight:700;text-align:right}
+.ac-time strong{display:block;font-size:10px;color:var(--white)}
+.tog-btn{width:38px;height:22px;border-radius:11px;background:var(--surface3);border:none;cursor:pointer;position:relative;transition:background 0.22s;flex-shrink:0}
+.tog-btn::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--cream-dim);top:4px;left:4px;transition:all 0.22s;box-shadow:0 1px 4px rgba(0,0,0,0.35)}
+.tog-btn.on{background:var(--green)}.tog-btn.on::after{left:20px;background:white}
+
+/* ── NOTIFICATIONS ── */
+.notif-list{display:flex;flex-direction:column;gap:8px}
+.ni{background:var(--surface);border-radius:var(--r-sm);padding:13px 15px;border:1px solid var(--border);display:flex;align-items:flex-start;gap:11px;cursor:pointer;transition:all 0.18s}
+.ni:hover{border-color:var(--border2)}
+.ni.unread{border-left:3px solid var(--gold)}
+.ni.unread.suc{border-left-color:var(--green)}.ni.unread.info{border-left-color:var(--blue)}.ni.unread.warn{border-left-color:var(--amber)}
+.ni-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ni-body{flex:1}.ni-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:2px}.ni-desc{font-size:11px;color:var(--cream-dim);font-weight:500;line-height:1.4}
+.ni-actions{display:flex;gap:5px;margin-top:7px}
+.ni-btn{font-size:10px;font-weight:700;padding:4px 11px;border-radius:20px;cursor:pointer;border:none;transition:all 0.18s}
+.ni-btn.p{background:var(--gold);color:var(--bg)}.ni-btn.p:hover{background:#e5a820}
+.ni-btn.s{background:var(--surface2);color:var(--cream)}.ni-btn.s:hover{background:var(--surface3)}
+.ni-time{font-size:9px;color:var(--cream-dim);flex-shrink:0;font-weight:600;padding-top:2px}
+
+/* ── GOALS ── */
+.goals-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:24px}
+.gc{background:var(--surface);border-radius:var(--r);padding:18px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.gc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.28)}
+.gc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.gc-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px}
+.gc-st{font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px}
+.gc-st.ok{background:var(--green-soft);color:var(--green)}.gc-st.risk{background:var(--amber-soft);color:var(--amber)}.gc-st.bad{background:var(--red-soft);color:var(--red)}
+.gc-name{font-size:14px;font-weight:800;color:var(--white);margin-bottom:3px}
+.gc-desc{font-size:11px;color:var(--cream-dim);font-weight:500;line-height:1.4;margin-bottom:12px}
+.gc-prow{display:flex;justify-content:space-between;margin-bottom:5px}
+.gc-pct{font-size:12px;font-weight:800;color:var(--white)}.gc-tgt{font-size:10px;color:var(--cream-dim);font-weight:600}
+.gc-track{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.gc-fill{height:100%;border-radius:3px;transition:width 1.4s cubic-bezier(0.22,1,0.36,1)}
+.gc-agents{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}
+.gc-tag{font-size:8px;font-weight:700;padding:2px 6px;border-radius:20px;background:var(--surface3);color:var(--cream-dim)}
+
+/* ── VAULT LIST ── */
+.vault-list{display:flex;flex-direction:column;gap:8px}
+.vi{background:var(--surface);border-radius:var(--r-sm);padding:14px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.18s}
+.vi:hover{border-color:var(--border2);transform:translateX(2px)}
+.vi-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.vi-body{flex:1;min-width:0}.vi-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vi-prev{font-size:10px;color:var(--cream-dim);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vi-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.vi-time{font-size:9px;color:var(--cream-dim);font-weight:700}
+.vi-cat{font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px}
+
+/* ── VOICE EDITOR ── */
+.ve-layout{display:grid;grid-template-columns:200px 1fr;gap:16px;min-height:600px}
+.ve-nav{display:flex;flex-direction:column;gap:2px}
+.ve-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1px solid transparent}
+.ve-item:hover{background:var(--surface)}
+.ve-item.active{background:var(--gold-soft);border-color:rgba(240,180,41,0.2)}
+.ve-item-icon{font-size:14px;flex-shrink:0}.ve-item-text{font-size:11px;font-weight:700;color:var(--cream-dim);transition:color 0.15s;flex:1}
+.ve-item.active .ve-item-text,.ve-item:hover .ve-item-text{color:var(--white)}
+.ve-dot{width:6px;height:6px;border-radius:50%}
+.ve-panel{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:22px;display:none}
+.ve-panel.active{display:block}
+.ve-section-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--white);margin-bottom:6px}
+.ve-section-title em{font-style:italic;color:var(--gold)}
+.ve-desc{font-size:12px;color:var(--cream-dim);line-height:1.6;margin-bottom:20px;font-weight:500}
+
+/* ── FORM ── */
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fl{font-size:9px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--cream-dim)}
+.fi,.ft,.fs{background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;padding:10px 13px;color:var(--white);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;outline:none;transition:border-color 0.2s;width:100%}
+.fi::placeholder,.ft::placeholder{color:#2e2e38}.fi:focus,.ft:focus,.fs:focus{border-color:rgba(240,180,41,0.4)}
+.ft{resize:vertical;min-height:80px;line-height:1.55}.fs{cursor:pointer}.fs option{background:#1a1a1c}
+.tone-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.tone-card{border:1.5px solid var(--border2);border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;background:var(--bg2);position:relative}
+.tone-card:hover{border-color:rgba(240,180,41,0.25)}.tone-card.sel{border-color:rgba(240,180,41,0.4);background:rgba(240,180,41,0.04)}
+.tone-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 0.3s;border-radius:12px 12px 0 0}
+.tone-card.sel::before{transform:scaleX(1)}
+.tc-chk{position:absolute;top:9px;right:9px;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:7px;color:transparent;transition:all 0.2s}
+.tone-card.sel .tc-chk{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.tc-ico{font-size:20px;margin-bottom:7px}.tc-name{font-size:12px;font-weight:800;color:var(--white);margin-bottom:3px}.tc-desc{font-size:10px;color:var(--cream-dim);line-height:1.45}
+.chips-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.chip-tog{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:6px 11px;border-radius:20px;cursor:pointer;transition:all 0.18s;border:1.5px solid var(--border2);background:var(--bg2);color:var(--cream-dim);user-select:none}
+.chip-tog:hover{color:var(--cream)}.chip-tog.on{background:var(--gold-soft);border-color:rgba(240,180,41,0.32);color:var(--gold)}
+.range-group{margin-bottom:18px}
+.range-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.rg-l,.rg-r{font-size:10px;font-weight:700;color:var(--cream-dim)}.rg-v{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold)}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--surface3);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(240,180,41,0.4);cursor:pointer}
+.rg-ends{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:#2a2a30}
+.word-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:28px}
+.wtag{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.08em;padding:3px 7px;border-radius:20px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#c06060;cursor:pointer;transition:all 0.15s}
+.wtag:hover{background:rgba(239,68,68,0.18)}.rtag{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2);color:#5a9a72}
+.word-input-row{display:flex;gap:7px}
+.word-fi{flex:1;background:var(--bg2);border:1.5px solid var(--border2);border-radius:9px;padding:7px 11px;color:var(--white);font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;outline:none;transition:border-color 0.2s}
+.word-fi:focus{border-color:rgba(240,180,41,0.35)}
+
+/* voice test */
+.voice-test-area{background:var(--bg2);border-radius:12px;border:1.5px solid var(--border2);padding:16px;margin-top:20px}
+.vt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.vt-title{font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--cream-dim)}
+.vt-types{display:flex;gap:4px}
+.vt-t{font-size:9px;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;transition:all 0.15s;border:1.5px solid var(--border2);background:var(--surface);color:var(--cream-dim)}
+.vt-t:hover{color:var(--cream)}.vt-t.active{background:var(--gold-soft);border-color:rgba(240,180,41,0.25);color:var(--gold)}
+.vt-input{width:100%;background:var(--surface);border:1.5px solid var(--border2);border-radius:9px;padding:9px 12px;color:var(--white);font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;outline:none;resize:none;min-height:55px;line-height:1.45;transition:border-color 0.2s;margin-bottom:9px}
+.vt-input:focus{border-color:rgba(240,180,41,0.32)}
+.vt-run{display:flex;gap:7px;align-items:center;justify-content:space-between}
+.vt-output{margin-top:12px;background:var(--surface2);border-radius:9px;padding:12px;display:none}
+.vt-output.visible{display:block}
+.vt-out-lbl{font-size:8px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-dim,#8a6028);margin-bottom:6px;font-family:'DM Mono',monospace}
+.vt-out-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;line-height:1.7;color:var(--cream);white-space:pre-wrap}
+
+/* voice strength */
+.vs-bar{display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:18px}
+.vs-lbl{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--cream-dim);flex-shrink:0;font-family:'DM Mono',monospace}
+.vs-track{flex:1;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.vs-fill{height:100%;background:linear-gradient(to right,var(--gold2),var(--gold));border-radius:2px;transition:width 0.7s cubic-bezier(0.22,1,0.36,1)}
+.vs-score{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--gold);flex-shrink:0}
+.vs-tier{font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;background:var(--gold-soft);color:var(--gold);flex-shrink:0}
+
+/* ── ONBOARDING ── */
+.ob-wrap{max-width:620px;margin:0 auto}
+.ob-step{display:none;animation:pageIn 0.3s ease both}
+.ob-step.active{display:block}
+.ob-progress{margin-bottom:28px}
+.ob-prog-track{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.ob-prog-fill{height:100%;background:linear-gradient(to right,var(--gold2),var(--gold));border-radius:2px;transition:width 0.5s cubic-bezier(0.22,1,0.36,1)}
+.ob-prog-lbl{font-size:10px;font-weight:700;color:var(--cream-dim);text-align:right;font-family:'DM Mono',monospace}
+.ob-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.ob-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;line-height:1.1;color:var(--white);margin-bottom:8px}
+.ob-title em{font-style:italic;color:var(--gold)}
+.ob-desc{font-size:13px;color:var(--cream-dim);line-height:1.6;margin-bottom:24px;font-weight:500}
+.ob-verse{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--gold-dim,#7a6028);padding-left:14px;border-left:2px solid var(--gold-soft);margin-bottom:28px;line-height:1.5}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+
+/* complete screen */
+.ob-complete-icon{width:68px;height:68px;border-radius:20px;background:var(--gold-soft);border:1.5px solid rgba(240,180,41,0.3);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:22px;animation:completeGlow 3s ease-in-out infinite}
+@keyframes completeGlow{0%,100%{box-shadow:0 0 18px rgba(240,180,41,0.08)}50%{box-shadow:0 0 50px rgba(240,180,41,0.2)}}
+.agent-complete-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:20px 0}
+.agent-pill{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:11px;border:1px solid var(--border);background:var(--surface);font-size:7px;font-weight:700;color:var(--cream-dim);text-align:center;animation:pageIn 0.4s ease both}
+.agent-pill-ico{font-size:16px}
+
+/* ── SCHEDULE MODAL ── */
+.freq-pills{display:flex;gap:7px;flex-wrap:wrap}
+.fp{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border2);font-size:11px;font-weight:700;cursor:pointer;transition:all 0.18s;background:var(--surface);color:var(--cream-dim)}
+.fp:hover{border-color:var(--gold);color:var(--gold)}.fp.sel{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.day-row{display:flex;gap:5px}
+.db{flex:1;padding:9px 3px;border-radius:9px;border:1.5px solid var(--border2);font-size:10px;font-weight:700;cursor:pointer;transition:all 0.18s;background:var(--surface);color:var(--cream-dim);text-align:center}
+.db:hover{border-color:var(--gold);color:var(--gold)}.db.sel{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
+.notify-opts{display:flex;flex-direction:column;gap:7px}
+.no{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:11px;border:1.5px solid var(--border2);background:var(--surface);cursor:pointer;transition:all 0.18s}
+.no.sel{border-color:rgba(240,180,41,0.35);background:var(--gold-soft)}
+.no-ico{font-size:17px;flex-shrink:0}.no-body{flex:1}.no-title{font-size:12px;font-weight:700;color:var(--white)}.no-sub{font-size:10px;color:var(--cream-dim);font-weight:500}
+.no-chk{width:18px;height:18px;border-radius:6px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;flex-shrink:0;transition:all 0.18s}
+.no.sel .no-chk{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.ctx-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ctx-btn{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);cursor:pointer;transition:all 0.18s;font-size:11px;font-weight:700;color:var(--cream-dim)}
+.ctx-btn:hover{color:var(--cream)}.ctx-btn.sel{border-color:rgba(59,130,246,0.4);background:var(--blue-soft);color:var(--blue)}
+
+/* ── AGENT RUN MODAL ── */
+.am-hero{padding:20px 20px 0;position:relative;overflow:hidden}
+.am-hero-bg{position:absolute;inset:0;opacity:0.07}
+.am-hero-content{position:relative;z-index:1;display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.am-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.am-name{font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px}
+.am-cat-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;display:inline-block}
+.am-close{margin-left:auto;width:30px;height:30px;border-radius:9px;background:rgba(0,0,0,0.3);border:none;color:var(--cream-dim);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.am-body{padding:0 20px 20px}
+.am-output-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;min-height:90px}
+.am-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px;gap:5px;opacity:0.38}
+.am-empty-ico{font-size:26px}.am-empty-txt{font-size:10px;font-weight:700;color:var(--cream-dim);letter-spacing:0.08em;text-transform:uppercase;font-family:'DM Mono',monospace}
+.am-loading{display:none;align-items:center;gap:7px;min-height:80px;justify-content:center;font-size:11px;font-weight:700;color:var(--gold)}
+.am-loading.active{display:flex}
+.am-dots span{display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%;margin:0 2px;animation:blink 1.2s infinite}
+.am-dots span:nth-child(2){animation-delay:0.2s}.am-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{opacity:0.15}40%{opacity:1}}
+.am-out-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;line-height:1.7;color:var(--cream);white-space:pre-wrap;display:none}
+.am-out-text.visible{display:block;animation:pageIn 0.3s ease}
+.am-textarea{width:100%;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:10px 13px;color:var(--white);font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;outline:none;resize:none;min-height:60px;line-height:1.45;transition:border-color 0.2s;margin-bottom:9px}
+.am-textarea:focus{border-color:rgba(240,180,41,0.35)}.am-textarea::placeholder{color:var(--cream-dim)}
+.am-actions{display:flex;gap:7px}
+
+/* ── MODALS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.overlay.open{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:22px;width:500px;max-width:96vw;max-height:90vh;overflow-y:auto;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both}
+.modal-box::-webkit-scrollbar{width:3px}.modal-box::-webkit-scrollbar-thumb{background:var(--surface3)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.modal-hdr{padding:20px 20px 0;display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.modal-hdr-ico{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.modal-hdr-title{font-size:18px;font-weight:800;color:var(--white);margin-bottom:2px}
+.modal-hdr-sub{font-size:11px;color:var(--cream-dim);font-weight:600}
+.modal-hdr-close{margin-left:auto;width:30px;height:30px;border-radius:9px;background:var(--surface);border:none;color:var(--cream-dim);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s}
+.modal-hdr-close:hover{background:var(--surface2);color:var(--white)}
+.modal-body{padding:0 20px}
+.m-sec{margin-bottom:20px}.m-lbl{font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:8px;font-family:'DM Mono',monospace}
+.modal-footer{padding:14px 20px 20px;display:flex;gap:8px}
+.mf-cancel{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface);color:var(--cream-dim);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.18s}
+.mf-cancel:hover{background:var(--surface2);color:var(--white)}
+.mf-save{flex:2;padding:12px;border-radius:12px;border:none;background:var(--gold);color:var(--bg);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.18s}
+.mf-save:hover{background:#e5a820}
+.divider{height:1px;background:var(--border);margin:6px 0 14px}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:2000;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--surface2);border:1px solid var(--border2);border-radius:13px;padding:12px 16px;display:flex;align-items:center;gap:9px;min-width:260px;max-width:320px;box-shadow:0 8px 28px rgba(0,0,0,0.4);animation:toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;pointer-events:all}
+@keyframes toastIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:translateX(0)}}
+.toast.out{animation:toastOut 0.25s ease both}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(36px)}}
+.toast.suc{border-left:3px solid var(--green)}.toast.alert{border-left:3px solid var(--gold)}.toast.info{border-left:3px solid var(--blue)}.toast.err{border-left:3px solid var(--red)}
+.toast-ico{font-size:18px;flex-shrink:0}.toast-title{font-size:12px;font-weight:800;color:var(--white);margin-bottom:1px}.toast-sub{font-size:10px;color:var(--cream-dim);font-weight:500}
+
+/* streaming */
+.streaming::after{content:'▋';animation:cur 0.7s infinite;color:var(--gold);font-size:13px}
+@keyframes cur{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ── AUTOMATION OUTPUT DRAWER ── */
+.ac-expanded{display:none;border-top:1px solid var(--border);margin-top:12px;padding-top:12px}
+.ac-expanded.open{display:block;animation:pageIn 0.22s ease both}
+.ac-out-tabs{display:flex;gap:5px;margin-bottom:10px}
+.ac-tab{font-size:9px;font-weight:800;padding:4px 10px;border-radius:20px;cursor:pointer;transition:all 0.15s;border:1.5px solid var(--border2);background:var(--surface2);color:var(--cream-dim);letter-spacing:0.04em;text-transform:uppercase}
+.ac-tab:hover{color:var(--cream)}.ac-tab.active{background:var(--gold-soft);border-color:rgba(240,180,41,0.28);color:var(--gold)}
+.ac-out-box{background:var(--bg2);border-radius:10px;padding:13px;min-height:72px;border:1px solid var(--border)}
+.ac-out-empty{display:flex;align-items:center;justify-content:center;gap:8px;min-height:60px;opacity:0.4;font-size:11px;font-weight:700;color:var(--cream-dim)}
+.ac-out-loading{display:none;align-items:center;justify-content:center;gap:8px;min-height:60px;font-size:11px;font-weight:700;color:var(--gold)}
+.ac-out-loading.active{display:flex}
+.ac-out-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;line-height:1.7;color:var(--cream);white-space:pre-wrap;display:none}
+.ac-out-text.visible{display:block}
+.ac-out-actions{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.ac-history-list{display:flex;flex-direction:column;gap:7px}
+.ac-hist-item{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--surface);border-radius:9px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.ac-hist-item:hover{border-color:var(--border2)}
+.ac-hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ac-hist-body{flex:1;min-width:0}.ac-hist-name{font-size:11px;font-weight:700;color:var(--white);margin-bottom:1px}.ac-hist-prev{font-size:10px;color:var(--cream-dim);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-hist-time{font-size:9px;color:var(--cream-dim);font-weight:700;flex-shrink:0}
+/* expanded card */
+.ac.expanded{flex-wrap:wrap;align-items:flex-start}
+.ac.expanded .ac-expanded{width:100%;flex-basis:100%}
+/* run now btn on card */
+.ac-run-now{font-size:9px;font-weight:800;padding:5px 11px;border-radius:20px;border:none;background:var(--gold);color:var(--bg);cursor:pointer;transition:all 0.18s;white-space:nowrap;letter-spacing:0.04em}
+.ac-run-now:hover{background:#e5a820;transform:scale(1.04)}
+.ac-run-now:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.ac-run-now.running{background:var(--green-soft);color:var(--green);border:1.5px solid rgba(34,197,94,0.3)}
+/* last output preview chip on card */
+.ac-last-output{margin-top:5px;font-size:9px;color:var(--cream-dim);font-weight:500;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;cursor:pointer}
+.ac-last-output:hover{color:var(--gold)}
+.ac-last-output.has-output{color:var(--green)}
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- ════════ GLOBAL AUTOMATION OUTPUT DRAWER ════════ -->
+<div id="outputDrawer" style="
+  position:fixed;bottom:0;left:72px;right:0;
+  background:var(--bg2);
+  border-top:2px solid var(--gold);
+  z-index:800;
+  display:none;
+  flex-direction:column;
+  max-height:55vh;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+  animation:drawerUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
+">
+  <!-- Drawer handle bar -->
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">
+    <div id="drawerIco" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--gold-soft)"></div>
+    <div style="flex:1;min-width:0">
+      <div id="drawerName" style="font-size:13px;font-weight:800;color:var(--white);line-height:1.2"></div>
+      <div id="drawerTime" style="font-size:10px;color:var(--cream-dim);font-weight:600;margin-top:1px"></div>
+    </div>
+    <!-- Loading indicator -->
+    <div id="drawerLoading" style="display:none;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold)">
+      <span style="display:inline-flex;gap:3px">
+        <span style="width:4px;height:4px;background:var(--gold);border-radius:50%;animation:blink 1.2s infinite;display:inline-block"></span>
+        <span style="width:4px;height:4px;background:var(--gold);border-radius:50%;animation:blink 1.2s 0.2s infinite;display:inline-block"></span>
+        <span style="width:4px;height:4px;background:var(--gold);border-radius:50%;animation:blink 1.2s 0.4s infinite;display:inline-block"></span>
+      </span>
+      Generating…
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="btn btn-surface btn-sm" id="drawerCopyBtn" onclick="copyDrawerOutput()" style="display:none">⎘ Copy</button>
+      <button class="btn btn-gold btn-sm" id="drawerVaultBtn" onclick="saveDrawerToVault()" style="display:none">+ Vault</button>
+      <button class="btn btn-surface btn-sm" onclick="closeDrawer()" style="padding:6px 10px;font-size:13px">✕</button>
+    </div>
+  </div>
+  <!-- Drawer content -->
+  <div style="flex:1;overflow-y:auto;padding:18px 24px" id="drawerScroll">
+    <div id="drawerEmpty" style="display:flex;align-items:center;justify-content:center;height:80px;gap:8px;opacity:0.4;font-size:11px;font-weight:700;color:var(--cream-dim)">Waiting for output…</div>
+    <div id="drawerContent" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;line-height:1.8;color:var(--cream);white-space:pre-wrap;display:none"></div>
+  </div>
+</div>
+
+<style>
+@keyframes drawerUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes drawerDown{from{transform:translateY(0);opacity:1}to{transform:translateY(100%);opacity:0}}
+</style>
+
+<!-- ════════ AGENT RUN MODAL ════════ -->
+<div class="overlay" id="agentOverlay" onclick="closeOverlay(event,'agentOverlay')">
+  <div class="modal-box" style="width:460px;">
+    <div class="am-hero">
+      <div class="am-hero-bg" id="amBg"></div>
+      <div class="am-hero-content">
+        <div class="am-icon" id="amIco"></div>
+        <div>
+          <div class="am-name" id="amName"></div>
+          <span class="am-cat-badge" id="amCat"></span>
+        </div>
+        <button class="am-close" onclick="closeModal('agentOverlay')">✕</button>
+      </div>
+    </div>
+    <div class="am-body">
+      <div class="am-output-box" id="amBox">
+        <div class="am-empty" id="amEmpty"><div class="am-empty-ico">✦</div><div class="am-empty-txt">Ready to generate</div></div>
+        <div class="am-loading" id="amLoad"><div class="am-dots"><span></span><span></span><span></span></div>Generating…</div>
+        <div class="am-out-text" id="amOut"></div>
+      </div>
+      <!-- Smart fields injected here per agent -->
+      <div id="amSmartFields"></div>
+      <div class="am-actions">
+        <button class="btn btn-gold" id="amRunBtn" onclick="runAgent()" style="flex:1;justify-content:center;">▶ Run Now</button>
+        <button class="btn btn-blue" onclick="closeModal('agentOverlay');openSchedule(currentAgent)">⏱ Schedule</button>
+        <button class="btn btn-surface" onclick="copyOutput()">⎘</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCHEDULE MODAL ════════ -->
+<div class="overlay" id="schedOverlay" onclick="closeOverlay(event,'schedOverlay')">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-hdr-ico" id="smIco" style="background:var(--gold-soft)">⏱</div>
+      <div><div class="modal-hdr-title" id="smTitle">Schedule Automation</div><div class="modal-hdr-sub" id="smSub">Runs automatically — you get notified of results</div></div>
+      <button class="modal-hdr-close" onclick="closeModal('schedOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="m-sec"><div class="m-lbl">Frequency</div>
+        <div class="freq-pills">
+          <div class="fp sel" onclick="selFreq(this)">Daily</div>
+          <div class="fp" onclick="selFreq(this)">Weekly</div>
+          <div class="fp" onclick="selFreq(this)">Before Sunday</div>
+          <div class="fp" onclick="selFreq(this)">After Service</div>
+          <div class="fp" onclick="selFreq(this)">Monthly</div>
+        </div>
+      </div>
+      <div class="m-sec"><div class="m-lbl">Days</div>
+        <div class="day-row">
+          <div class="db sel" onclick="this.classList.toggle('sel')">Mon</div>
+          <div class="db sel" onclick="this.classList.toggle('sel')">Tue</div>
+          <div class="db" onclick="this.classList.toggle('sel')">Wed</div>
+          <div class="db" onclick="this.classList.toggle('sel')">Thu</div>
+          <div class="db sel" onclick="this.classList.toggle('sel')">Fri</div>
+          <div class="db" onclick="this.classList.toggle('sel')">Sat</div>
+          <div class="db sel" onclick="this.classList.toggle('sel')">Sun</div>
+        </div>
+      </div>
+      <div class="m-sec"><div class="m-lbl">Run Time</div>
+        <input class="fi" type="time" value="07:00" style="width:160px;" />
+      </div>
+      <div class="m-sec"><div class="m-lbl">Goal for This Automation</div>
+        <textarea class="ft" placeholder="What do you want this agent to help achieve? e.g. 'Grow email open rate to 40%' or 'Double YouTube CTR by Q3'"></textarea>
+      </div>
+      <div class="m-sec"><div class="m-lbl">Pull Live Data From</div>
+        <div class="ctx-grid">
+          <div class="ctx-btn sel" onclick="this.classList.toggle('sel')"><span>📺</span> YouTube</div>
+          <div class="ctx-btn sel" onclick="this.classList.toggle('sel')"><span>📸</span> Instagram</div>
+          <div class="ctx-btn sel" onclick="this.classList.toggle('sel')"><span>✉️</span> Email Stats</div>
+          <div class="ctx-btn" onclick="this.classList.toggle('sel')"><span>📅</span> Sermon Calendar</div>
+          <div class="ctx-btn" onclick="this.classList.toggle('sel')"><span>👥</span> Attendance</div>
+          <div class="ctx-btn" onclick="this.classList.toggle('sel')"><span>🎵</span> TikTok</div>
+        </div>
+      </div>
+      <div class="m-sec"><div class="m-lbl">Notify Me When It Runs</div>
+        <div class="notify-opts">
+          <div class="no sel" onclick="this.classList.toggle('sel')"><div class="no-ico">📱</div><div class="no-body"><div class="no-title">Push Notification</div><div class="no-sub">Alert on your phone when output is ready</div></div><div class="no-chk">✓</div></div>
+          <div class="no sel" onclick="this.classList.toggle('sel')"><div class="no-ico">✉️</div><div class="no-body"><div class="no-title">Email Delivery</div><div class="no-sub">Full output sent to your email</div></div><div class="no-chk">✓</div></div>
+          <div class="no" onclick="this.classList.toggle('sel')"><div class="no-ico">🚨</div><div class="no-body"><div class="no-title">Goal Threshold Alert</div><div class="no-sub">Notify when AI detects a goal milestone</div></div><div class="no-chk">✓</div></div>
+          <div class="no" onclick="this.classList.toggle('sel')"><div class="no-ico">💬</div><div class="no-body"><div class="no-title">Slack / Team Channel</div><div class="no-sub">Post output directly to your workspace</div></div><div class="no-chk">✓</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-cancel" onclick="closeModal('schedOverlay')">Cancel</button>
+      <button class="mf-save" onclick="saveAuto()">⏱ Activate Automation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ APP SHELL ════════════ -->
+<div class="shell">
+
+  <!-- ICON RAIL -->
+  <nav class="rail">
+    <div class="rail-logo">✝</div>
+    <button class="rb active" onclick="nav('home',this)" title="Home"><span class="rb-icon">⌂</span><span class="rb-lbl">Home</span></button>
+    <button class="rb" onclick="nav('agents',this)" title="Agents"><span class="rb-icon">⚡</span><span class="rb-lbl">Agents</span></button>
+    <button class="rb" onclick="nav('schedule',this)" title="Schedule"><span class="rb-icon">⏱</span><span class="rb-lbl">Schedule</span></button>
+    <button class="rb" onclick="nav('goals',this)" title="Goals"><span class="rb-icon">🎯</span><span class="rb-lbl">Goals</span></button>
+    <button class="rb" onclick="nav('alerts',this)" title="Alerts" id="railAlerts"><span class="rb-icon">🔔</span><span class="rb-lbl">Alerts</span><div class="rb-badge" id="notifBadge"></div></button>
+    <button class="rb" onclick="nav('vault',this)" title="Vault"><span class="rb-icon">📂</span><span class="rb-lbl">Vault</span></button>
+    <button class="rb" onclick="nav('voice',this)" title="Voice Profile"><span class="rb-icon">✍️</span><span class="rb-lbl">Voice</span></button>
+    <button class="rb" onclick="nav('onboard',this)" title="Setup"><span class="rb-icon">🏛️</span><span class="rb-lbl">Setup</span></button>
+    <div class="rail-spacer"></div>
+    <div class="rail-avatar" title="Pastor M">M</div>
+  </nav>
+
+  <!-- PAGES -->
+  <div class="main">
+
+    <!-- ════ HOME ════ -->
+    <div class="page active" id="pg-home">
+      <div class="ph">
+        <div class="ph-left"><h1 id="greet">Good morning, Pastor M</h1><p>Transformation Church · 6 automations active · 247 outputs saved</p></div>
+        <div class="ph-right">
+          <button class="btn btn-outline btn-sm" onclick="nav('schedule',document.querySelectorAll('.rb')[3])">⏱ Schedule Agent</button>
+          <button class="btn btn-gold btn-sm" onclick="openAgent(7)">▶ Quick Run</button>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="sc" onclick="nav('alerts',document.querySelectorAll('.rb')[5])"><div class="sc-top"><div class="sc-icon" style="background:rgba(240,180,41,0.12)">✉️</div><span class="sc-trend up">+12%</span></div><div class="sc-val">34.2%</div><div class="sc-lbl">Email Open Rate</div></div>
+        <div class="sc" onclick="nav('goals',document.querySelectorAll('.rb')[4])"><div class="sc-top"><div class="sc-icon" style="background:rgba(59,130,246,0.12)">📺</div><span class="sc-trend up">+8%</span></div><div class="sc-val">52.1K</div><div class="sc-lbl">YouTube Subscribers</div></div>
+        <div class="sc" onclick="nav('goals',document.querySelectorAll('.rb')[4])"><div class="sc-top"><div class="sc-icon" style="background:rgba(34,197,94,0.12)">👥</div><span class="sc-trend up">+12%</span></div><div class="sc-val">2,847</div><div class="sc-lbl">In-Person Attendance</div></div>
+        <div class="sc" onclick="nav('vault',document.querySelectorAll('.rb')[6])"><div class="sc-top"><div class="sc-icon" style="background:rgba(168,85,247,0.12)">⚡</div><span class="sc-trend fl">47 this wk</span></div><div class="sc-val">247</div><div class="sc-lbl">Vault Outputs</div></div>
+      </div>
+      <div class="sec-lbl">Active Agents <span class="sec-lbl-act" onclick="nav('agents',document.querySelectorAll('.rb')[2])">See all 20 →</span></div>
+      <div class="agent-grid" id="homeAgents"></div>
+      <div class="sec-lbl">Today's Automations <span class="sec-lbl-act" onclick="nav('schedule',document.querySelectorAll('.rb')[3])">Manage →</span></div>
+      <div class="auto-list" id="homeAutos"></div>
+    </div>
+
+    <!-- ════ AGENTS ════ -->
+    <div class="page" id="pg-agents">
+      <div class="ph">
+        <div class="ph-left"><h1>Agent Hub</h1><p>20 AI agents · Tap to run · Long-press to schedule</p></div>
+        <div class="ph-right"><button class="btn btn-outline btn-sm" onclick="nav('schedule',document.querySelectorAll('.rb')[3])">+ New Automation</button></div>
+      </div>
+      <div class="sec-lbl">Newsletter Suite</div><div class="agent-grid" id="agN"></div>
+      <div class="sec-lbl">Marketing Suite</div><div class="agent-grid" id="agM"></div>
+      <div class="sec-lbl">Operations Suite</div><div class="agent-grid" id="agO"></div>
+    </div>
+
+    <!-- ════ SCHEDULE ════ -->
+    <div class="page" id="pg-schedule">
+      <div class="ph">
+        <div class="ph-left"><h1>Automation Scheduler</h1><p>Tap <strong style="color:var(--gold)">▶ Run Now</strong> to fire instantly · Toggle to pause · Output appears below each card</p></div>
+        <div class="ph-right"><button class="btn btn-gold btn-sm" onclick="openSchedule(null)">+ New Automation</button></div>
+      </div>
+
+      <!-- Output spotlight -->
+      <div id="autoSpotlight" style="display:none;background:var(--surface);border-radius:var(--r);border:1px solid rgba(240,180,41,0.25);padding:18px;margin-bottom:18px;animation:pageIn 0.3s ease both">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div id="spotIco" style="width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--gold-soft)"></div>
+          <div style="flex:1;min-width:120px">
+            <div id="spotName" style="font-size:13px;font-weight:800;color:var(--white);margin-bottom:1px"></div>
+            <div id="spotTime" style="font-size:10px;color:var(--cream-dim);font-weight:600"></div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="btn btn-surface btn-sm" onclick="copySpotlight()">⎘ Copy</button>
+            <button class="btn btn-gold btn-sm" onclick="saveSpotlightToVault()">+ Vault</button>
+            <button class="btn btn-surface btn-sm" style="padding:6px 9px;" onclick="document.getElementById('autoSpotlight').style.display='none'">✕</button>
+          </div>
+        </div>
+        <div id="spotLoading" style="display:none;align-items:center;gap:8px;padding:16px 0;font-size:11px;font-weight:700;color:var(--gold)">
+          <div style="display:flex;gap:3px"><span style="animation:blink 1.2s infinite;display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%"></span><span style="animation:blink 1.2s 0.2s infinite;display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%"></span><span style="animation:blink 1.2s 0.4s infinite;display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%"></span></div>
+          Agent running…
+        </div>
+        <div id="spotContent" style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;line-height:1.75;color:var(--cream);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding-right:4px"></div>
+      </div>
+
+      <div class="sec-lbl">
+        Automations
+        <span style="background:var(--green-soft);color:var(--green);font-size:9px;padding:2px 8px;border-radius:20px;margin-left:5px;font-weight:800;" id="autoActiveCount">6 active</span>
+      </div>
+      <div class="auto-list" id="allAutos"></div>
+
+      <div class="sec-lbl" style="margin-top:8px;">How It Works</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:24px">
+        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">▶</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Run Now</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Hit Run Now on any automation to fire it instantly. Output appears at the top of this page — no need to find the agent separately.</div></div>
+        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">⏱</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Auto Schedule</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Each automation runs on its own schedule — daily, weekly, before Sunday, after service, or any custom trigger you set.</div></div>
+        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">🔔</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Get Notified</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Every output triggers a notification. Review, copy, save to vault, or send directly — all without switching pages.</div></div>
+      </div>
+    </div>
+
+    <!-- ════ GOALS ════ -->
+    <div class="page" id="pg-goals">
+      <div class="ph">
+        <div class="ph-left"><h1>Ministry Goals</h1><p>Goals connected to agent automations — tracked weekly</p></div>
+        <div class="ph-right"><button class="btn btn-gold btn-sm" onclick="toast('suc','New Goal','Goal creator opening…')">+ Add Goal</button></div>
+      </div>
+      <div class="sec-lbl">Q2 2025 Goals</div>
+      <div class="goals-grid" id="goalsGrid"></div>
+    </div>
+
+    <!-- ════ ALERTS ════ -->
+    <div class="page" id="pg-alerts">
+      <div class="ph">
+        <div class="ph-left"><h1>Notifications</h1><p>Agent outputs, automation results, goal alerts</p></div>
+        <div class="ph-right"><button class="btn btn-outline btn-sm" onclick="markAllRead()">Mark all read</button></div>
+      </div>
+      <div class="sec-lbl">Today</div>
+      <div class="notif-list" id="notifList"></div>
+    </div>
+
+    <!-- ════ VAULT ════ -->
+    <div class="page" id="pg-vault" style="padding:0;display:flex;flex-direction:column;height:100%">
+      <!-- Vault top bar -->
+      <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2)">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--white)">Output Vault</div>
+          <div style="font-size:11px;color:var(--cream-dim);margin-top:2px;font-weight:500" id="vaultCount">Loading outputs…</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <!-- Search -->
+          <div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:0 11px;height:32px">
+            <span style="font-size:12px;color:var(--cream-dim)">⌕</span>
+            <input id="vaultSearch" style="background:transparent;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:12px;color:var(--white);width:160px" placeholder="Search outputs…" oninput="filterVault(this.value)" />
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="copyVaultItem()">⎘ Copy</button>
+          <button class="btn btn-gold btn-sm" onclick="openAgent(7)">+ New Output</button>
+        </div>
+      </div>
+
+      <!-- Split layout: list left, preview right -->
+      <div style="flex:1;display:grid;grid-template-columns:340px 1fr;overflow:hidden;min-height:0">
+
+        <!-- LEFT: scrollable list -->
+        <div style="border-right:1px solid var(--border);overflow-y:auto;background:var(--bg2)" id="vaultListPane">
+          <div class="vault-list" id="vaultList" style="padding:10px;gap:6px"></div>
+        </div>
+
+        <!-- RIGHT: preview pane -->
+        <div style="display:flex;flex-direction:column;overflow:hidden;background:var(--black)" id="vaultPreviewPane">
+
+          <!-- Empty state -->
+          <div id="vaultPreviewEmpty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0.3">
+            <div style="font-size:40px">📂</div>
+            <div style="font-size:14px;font-weight:700;color:var(--cream-dim)">Select an output to read it</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#2a2a30">Click any item on the left</div>
+          </div>
+
+          <!-- Preview content (hidden until item selected) -->
+          <div id="vaultPreviewContent" style="display:none;flex-direction:column;height:100%">
+
+            <!-- Preview header -->
+            <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;flex-shrink:0;background:var(--surface)">
+              <div id="vpIco" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0"></div>
+              <div style="flex:1;min-width:0">
+                <div id="vpName" style="font-size:15px;font-weight:800;color:var(--white);margin-bottom:4px;line-height:1.2"></div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <span id="vpCat" style="font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px"></span>
+                  <span id="vpTime" style="font-size:10px;color:var(--cream-dim);font-weight:600"></span>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-shrink:0">
+                <button class="btn btn-surface btn-sm" onclick="copyVaultItem()" title="Copy full content">⎘ Copy</button>
+                <button class="btn btn-gold btn-sm" onclick="rerunVaultItem()" title="Re-run this agent">↺ Re-run</button>
+              </div>
+            </div>
+
+            <!-- Preview body -->
+            <div style="flex:1;overflow-y:auto;padding:24px 28px" id="vpBody">
+              <div id="vpText" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;line-height:1.82;color:var(--cream);white-space:pre-wrap;max-width:680px"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ VOICE PROFILE ════ -->
+    <div class="page" id="pg-voice">
+      <div class="ph">
+        <div class="ph-left"><h1>Voice Profile</h1><p>Train every agent to write in your church's exact voice</p></div>
+        <div class="ph-right">
+          <button class="btn btn-outline btn-sm" onclick="runVoiceTest()">✦ Test Voice</button>
+          <button class="btn btn-gold btn-sm" onclick="saveVoice()">Save Profile</button>
+        </div>
+      </div>
+      <div class="vs-bar"><span class="vs-lbl">Voice Strength</span><div class="vs-track"><div class="vs-fill" id="vsBar" style="width:0%"></div></div><span class="vs-score" id="vsScore">78</span><span class="vs-tier">Strong</span></div>
+      <div class="ve-layout">
+        <div class="ve-nav" id="veNav">
+          <div class="ve-item active" onclick="voiceTab(0,this)"><span class="ve-item-icon">🏛️</span><span class="ve-item-text">Church Identity</span><div class="ve-dot" style="background:var(--green)"></div></div>
+          <div class="ve-item" onclick="voiceTab(1,this)"><span class="ve-item-icon">🎭</span><span class="ve-item-text">Tone Profile</span><div class="ve-dot" style="background:var(--green)"></div></div>
+          <div class="ve-item" onclick="voiceTab(2,this)"><span class="ve-item-icon">⚙️</span><span class="ve-item-text">Style Dials</span><div class="ve-dot" style="background:var(--gold)"></div></div>
+          <div class="ve-item" onclick="voiceTab(3,this)"><span class="ve-item-icon">📝</span><span class="ve-item-text">Writing Samples</span><div class="ve-dot" style="background:var(--gold)"></div></div>
+          <div class="ve-item" onclick="voiceTab(4,this)"><span class="ve-item-icon">🚫</span><span class="ve-item-text">Language Rules</span><div class="ve-dot" style="background:var(--surface3)"></div></div>
+          <div class="ve-item" onclick="voiceTab(5,this)"><span class="ve-item-icon">👥</span><span class="ve-item-text">Audience Profile</span><div class="ve-dot" style="background:var(--surface3)"></div></div>
+          <div class="ve-item" onclick="voiceTab(6,this)"><span class="ve-item-icon">👤</span><span class="ve-item-text">Pastor Voice</span><div class="ve-dot" style="background:var(--surface3)"></div></div>
+        </div>
+        <div>
+          <!-- Panel 0: Identity -->
+          <div class="ve-panel active" id="vp0">
+            <div class="ve-section-title">Church <em>Identity</em></div>
+            <div class="ve-desc">The foundational layer every agent reads first.</div>
+            <div class="fg-2">
+              <div class="fg"><label class="fl">Church Name</label><input class="fi" id="v_name" value="Transformation Church" oninput="updateVS()"/></div>
+              <div class="fg"><label class="fl">City & State</label><input class="fi" id="v_city" value="Tulsa, Oklahoma" oninput="updateVS()"/></div>
+            </div>
+            <div class="fg"><label class="fl">Mission Statement</label><input class="fi" id="v_mission" value="Saved people serving people by showing the world Jesus" oninput="updateVS()"/></div>
+            <div class="fg"><label class="fl">Vision</label><textarea class="ft" id="v_vision" oninput="updateVS()">A multiethnic, Spirit-led church transforming individuals, families, and the city of Tulsa — and producing content that transforms the world online.</textarea></div>
+            <div class="fg"><label class="fl">Core Values (one per line)</label><textarea class="ft" id="v_values" oninput="updateVS()">Authenticity · Generosity · Kingdom-mindedness · Cultural relevance · Excellence</textarea></div>
+          </div>
+          <!-- Panel 1: Tone -->
+          <div class="ve-panel" id="vp1">
+            <div class="ve-section-title">Tone <em>Profile</em></div>
+            <div class="ve-desc">The emotional register and energy behind every word.</div>
+            <div class="tone-grid">
+              <div class="tone-card sel" onclick="selTone(this,'bold-prophetic')"><div class="tc-chk">✓</div><div class="tc-ico">🔥</div><div class="tc-name">Bold & Prophetic</div><div class="tc-desc">Direct, Spirit-led, calls people higher. Not afraid of hard truth delivered with love.</div></div>
+              <div class="tone-card" onclick="selTone(this,'warm-pastoral')"><div class="tc-chk">✓</div><div class="tc-ico">🕊️</div><div class="tc-name">Warm & Pastoral</div><div class="tc-desc">Approachable, nurturing, community-first. Everyone belongs here.</div></div>
+              <div class="tone-card" onclick="selTone(this,'modern-cultural')"><div class="tc-chk">✓</div><div class="tc-ico">⚡</div><div class="tc-name">Modern & Cultural</div><div class="tc-desc">Culturally aware, youth-forward, meets people where they are.</div></div>
+              <div class="tone-card" onclick="selTone(this,'teaching-deep')"><div class="tc-chk">✓</div><div class="tc-ico">📖</div><div class="tc-name">Teaching & Deep</div><div class="tc-desc">Word-centered, expository, rewards depth over surface.</div></div>
+            </div>
+            <div class="fg"><label class="fl">Voice in 3 Words</label><input class="fi" id="v_3words" value="Bold, Warm, Real" oninput="updateVS()"/></div>
+            <div class="fg"><label class="fl">This Voice Is NOT</label><input class="fi" id="v_not" value="Religious, Corporate, Preachy, Fake" oninput="updateVS()"/></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl" style="margin-bottom:8px">Style Qualities</label>
+              <div class="chips-wrap" id="styleChips">
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Storytelling-First</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Scripture-Anchored</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Conversational</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Humor & Lightness</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Short & Punchy</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Mission-Urgency</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Multicultural Voice</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Hopeful</div>
+              </div>
+            </div>
+          </div>
+          <!-- Panel 2: Dials -->
+          <div class="ve-panel" id="vp2">
+            <div class="ve-section-title">Style <em>Dials</em></div>
+            <div class="ve-desc">Fine-tune how agents write — these apply to every output.</div>
+            <div class="range-group"><div class="range-row"><span class="rg-l">Formal</span><span class="rg-v" id="rv0">40</span><span class="rg-r">Casual</span></div><input type="range" min="0" max="100" value="40" oninput="document.getElementById('rv0').textContent=this.value"/><div class="rg-ends"><span>Reverent, structured</span><span>Conversational, loose</span></div></div>
+            <div class="range-group"><div class="range-row"><span class="rg-l">Concise</span><span class="rg-v" id="rv1">65</span><span class="rg-r">Expansive</span></div><input type="range" min="0" max="100" value="65" oninput="document.getElementById('rv1').textContent=this.value"/><div class="rg-ends"><span>Short & punchy</span><span>Rich detail</span></div></div>
+            <div class="range-group"><div class="range-row"><span class="rg-l">Rational</span><span class="rg-v" id="rv2">72</span><span class="rg-r">Emotional</span></div><input type="range" min="0" max="100" value="72" oninput="document.getElementById('rv2').textContent=this.value"/><div class="rg-ends"><span>Logic-driven</span><span>Story-driven</span></div></div>
+            <div class="range-group"><div class="range-row"><span class="rg-l">Safe</span><span class="rg-v" id="rv3">78</span><span class="rg-r">Bold</span></div><input type="range" min="0" max="100" value="78" oninput="document.getElementById('rv3').textContent=this.value"/><div class="rg-ends"><span>Gentle</span><span>Challenges assumptions</span></div></div>
+            <div class="range-group"><div class="range-row"><span class="rg-l">Traditional</span><span class="rg-v" id="rv4">82</span><span class="rg-r">Modern</span></div><input type="range" min="0" max="100" value="82" oninput="document.getElementById('rv4').textContent=this.value"/><div class="rg-ends"><span>Classic expressions</span><span>Culturally current</span></div></div>
+            <div class="range-group"><div class="range-row"><span class="rg-l">Light Scripture</span><span class="rg-v" id="rv5">60</span><span class="rg-r">Scripture-Heavy</span></div><input type="range" min="0" max="100" value="60" oninput="document.getElementById('rv5').textContent=this.value"/><div class="rg-ends"><span>Occasional references</span><span>Scripture in every section</span></div></div>
+          </div>
+          <!-- Panel 3: Samples -->
+          <div class="ve-panel" id="vp3">
+            <div class="ve-section-title">Writing <em>Samples</em></div>
+            <div class="ve-desc">Paste real church writing — newsletters, captions, sermon intros. The AI extracts your natural voice patterns.</div>
+            <div class="fg"><label class="fl">Sample 1 — Newsletter Intro</label><textarea class="ft" style="min-height:110px" id="v_sample1" oninput="updateVS()">Hey TC family, Week 3 of Unshakeable and we're not slowing down. This Sunday, Pastor M is going to take us somewhere real — right into the middle of the shaking. Not around it. Through it. Bring someone. This is the kind of message that changes things.</textarea></div>
+            <div class="fg"><label class="fl">Sample 2 — Social Caption</label><textarea class="ft" id="v_sample2" oninput="updateVS()">You don't need a perfect life to have a powerful testimony. You just need to still be here. That's enough. 👇 Watch Sunday's message — link in bio</textarea></div>
+            <div class="fg"><label class="fl">Sample 3 — Your own (optional)</label><textarea class="ft" placeholder="Paste any real writing from your church — the more authentic the better…" id="v_sample3" oninput="updateVS()"></textarea></div>
+          </div>
+          <!-- Panel 4: Language Rules -->
+          <div class="ve-panel" id="vp4">
+            <div class="ve-section-title">Language <em>Rules</em></div>
+            <div class="ve-desc">Set explicit guardrails — words to never use and phrases to always include.</div>
+            <div class="fg"><label class="fl" style="margin-bottom:8px">⛔ Never Use These Words</label>
+              <div class="word-tags" id="forbiddenTags">
+                <span class="wtag" onclick="this.remove()">Churchy ✕</span>
+                <span class="wtag" onclick="this.remove()">Sinners ✕</span>
+                <span class="wtag" onclick="this.remove()">Brethren ✕</span>
+                <span class="wtag" onclick="this.remove()">Amen (as filler) ✕</span>
+              </div>
+              <div class="word-input-row"><input class="word-fi" id="fbInput" placeholder="Add a forbidden word…" onkeydown="if(event.key==='Enter')addWord('f')"/><button class="btn btn-surface btn-sm" onclick="addWord('f')">+ Add</button></div>
+            </div>
+            <div class="fg"><label class="fl" style="margin-bottom:8px">✅ Always Include These</label>
+              <div class="word-tags" id="reqTags">
+                <span class="wtag rtag" onclick="this.remove()">Family ✕</span>
+                <span class="wtag rtag" onclick="this.remove()">Life change ✕</span>
+                <span class="wtag rtag" onclick="this.remove()">Real ✕</span>
+              </div>
+              <div class="word-input-row"><input class="word-fi" id="rqInput" placeholder="Add a required word…" onkeydown="if(event.key==='Enter')addWord('r')"/><button class="btn btn-surface btn-sm" onclick="addWord('r')">+ Add</button></div>
+            </div>
+            <div class="fg"><label class="fl">Signature Phrases</label><textarea class="ft" placeholder="e.g. 'Transformation is not a destination — it's a daily decision.'">Transformation is not a destination — it's a daily decision.
+We're better together.
+This is your church.</textarea></div>
+          </div>
+
+          <!-- Panel 5: Audience Profile -->
+          <div class="ve-panel" id="vp5">
+            <div class="ve-section-title">Audience <em>Profile</em></div>
+            <div class="ve-desc">Tell every agent exactly who you're writing for. This calibrates relevance, empathy, and accessibility across all outputs.</div>
+            <div class="fg"><label class="fl">Primary Audience Description</label><textarea class="ft tall" id="v_audience" placeholder="Who does your church primarily reach? Demographics, life stage, cultural background, spiritual journey stage…" oninput="updateVS()"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="fg"><label class="fl">Average Age Range</label><select class="fs" id="v_age_range" onchange="updateVS()"><option>Primarily 25-40</option><option>Primarily 18-30</option><option>Mixed / All ages</option><option>Primarily 35-55</option><option>Primarily 40+</option></select></div>
+              <div class="fg"><label class="fl">Cultural Makeup</label><select class="fs" id="v_cultural" onchange="updateVS()"><option>Multiethnic / Diverse</option><option>Primarily Black</option><option>Primarily White</option><option>Primarily Hispanic/Latino</option><option>Majority + diverse</option></select></div>
+            </div>
+            <div class="fg" style="margin-bottom:8px"><label class="fl" style="margin-bottom:8px">Spiritual Journey Mix</label>
+              <div class="chips-wrap">
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Unchurched seekers</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">New believers</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Returning Christians</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Lifelong believers</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Church hurt</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Spiritually curious</div>
+              </div>
+            </div>
+            <div class="fg"><label class="fl">What does your audience want most?</label><textarea class="ft" id="v_wants" placeholder="e.g. Hope, community, answers, belonging, healing, clarity on purpose…" oninput="updateVS()"></textarea></div>
+            <div class="fg"><label class="fl">What are they running FROM?</label><textarea class="ft" id="v_running_from" placeholder="e.g. Religious trauma, loneliness, meaninglessness, broken family patterns…" oninput="updateVS()" style="min-height:68px;"></textarea></div>
+          </div>
+
+          <!-- Panel 6: Pastor Voice -->
+          <div class="ve-panel" id="vp6">
+            <div class="ve-section-title">Pastor <em>Voice</em></div>
+            <div class="ve-desc">Train the Internal Comms agent and all leadership communication tools to write in your pastor's personal voice.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="fg"><label class="fl">Pastor's Name / Title</label><input class="fi" id="v_pastor_name" value="Pastor M" oninput="updateVS()"/></div>
+              <div class="fg"><label class="fl">Communication Style</label><select class="fs" id="v_pastor_style" onchange="updateVS()"><option>Direct but warm</option><option>Highly encouraging</option><option>Prophetically bold</option><option>Thoughtful and measured</option></select></div>
+            </div>
+            <div class="fg"><label class="fl">How does the pastor typically open a team email?</label><input class="fi" id="v_pastor_open" value="Hey family," placeholder="e.g. Team, Hey all, Good morning," oninput="updateVS()"/></div>
+            <div class="fg"><label class="fl">How do they typically close?</label><input class="fi" id="v_pastor_close" value="In it with you," placeholder="e.g. Grateful for you, Let's go, Together," oninput="updateVS()"/></div>
+            <div class="fg"><label class="fl">Paste a real team email, message, or note from the pastor</label><textarea class="ft tall" id="v_pastor_sample" placeholder="The more authentic the better — even a Slack message or text. The AI extracts voice patterns." oninput="updateVS()">Hey family,
+
+Quick thought before this Sunday.
+
+We're in Week 3 of Unshakeable and I keep feeling like someone in the room — or watching online — needs exactly what we're about to say.
+
+Don't let busy beat you to it. Be there.
+
+And if you can, bring one person who needs to hear it.
+
+I'll see you Sunday. Let's go change some lives.
+
+In it with you,
+Pastor M</textarea></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl" style="margin-bottom:8px">Leadership Values in Communication</label>
+              <div class="chips-wrap">
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Accountability</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Vision-casting</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Team honor</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Humor</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Direct feedback</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Vulnerability</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Kingdom urgency</div>
+              </div>
+            </div>
+          </div>
+            <div class="ve-section-title">Language <em>Rules</em></div>
+            <div class="ve-desc">Set explicit guardrails — words to never use and phrases to always include.</div>
+            <div class="fg"><label class="fl" style="margin-bottom:8px">⛔ Never Use These Words</label>
+              <div class="word-tags" id="forbiddenTags">
+                <span class="wtag" onclick="this.remove()">Churchy ✕</span>
+                <span class="wtag" onclick="this.remove()">Sinners ✕</span>
+                <span class="wtag" onclick="this.remove()">Brethren ✕</span>
+                <span class="wtag" onclick="this.remove()">Amen (as filler) ✕</span>
+              </div>
+              <div class="word-input-row"><input class="word-fi" id="fbInput" placeholder="Add a forbidden word…" onkeydown="if(event.key==='Enter')addWord('f')"/><button class="btn btn-surface btn-sm" onclick="addWord('f')">+ Add</button></div>
+            </div>
+            <div class="fg"><label class="fl" style="margin-bottom:8px">✅ Always Include These</label>
+              <div class="word-tags" id="reqTags">
+                <span class="wtag rtag" onclick="this.remove()">Family ✕</span>
+                <span class="wtag rtag" onclick="this.remove()">Life change ✕</span>
+                <span class="wtag rtag" onclick="this.remove()">Real ✕</span>
+              </div>
+              <div class="word-input-row"><input class="word-fi" id="rqInput" placeholder="Add a required word…" onkeydown="if(event.key==='Enter')addWord('r')"/><button class="btn btn-surface btn-sm" onclick="addWord('r')">+ Add</button></div>
+            </div>
+            <div class="fg"><label class="fl">Signature Phrases</label><textarea class="ft" placeholder="e.g. 'Transformation is not a destination — it's a daily decision.'">Transformation is not a destination — it's a daily decision.
+We're better together.
+This is your church.</textarea></div>
+          </div>
+
+          <!-- Live Voice Test (shows on all panels) -->
+          <div class="voice-test-area" id="voiceTestArea">
+            <div class="vt-header">
+              <span class="vt-title">// Live Voice Test</span>
+              <div class="vt-types">
+                <div class="vt-t active" onclick="setVT('newsletter',this)">Newsletter</div>
+                <div class="vt-t" onclick="setVT('social',this)">Social</div>
+                <div class="vt-t" onclick="setVT('internal',this)">Internal</div>
+                <div class="vt-t" onclick="setVT('cta',this)">CTA</div>
+              </div>
+            </div>
+            <textarea class="vt-input" id="vtInput">Write a 2-paragraph newsletter intro for Sunday's sermon on "When the Ground Shifts" — Psalm 46. Announce baptism Sunday next week.</textarea>
+            <div class="vt-run">
+              <button class="btn btn-gold btn-sm" id="vtBtn" onclick="runVoiceTest()">▶ Generate Preview</button>
+              <span style="font-size:10px;color:var(--cream-dim);font-family:'DM Mono',monospace;font-size:9px">Powered by live voice profile</span>
+            </div>
+            <div class="vt-output" id="vtOutput">
+              <div class="vt-out-lbl">// Voice Output</div>
+              <div class="vt-out-text" id="vtText"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ ONBOARDING ════ -->
+    <div class="page" id="pg-onboard">
+      <div class="ob-wrap">
+        <div class="ob-progress"><div class="ob-prog-track"><div class="ob-prog-fill" id="obBar" style="width:0%"></div></div><div class="ob-prog-lbl" id="obLbl">Step 1 of 5</div></div>
+        <!-- Step 0 -->
+        <div class="ob-step active" id="obs0">
+          <div class="ob-eyebrow">// Welcome</div>
+          <div class="ob-title">Welcome to<br><em>Discipleship.</em></div>
+          <div class="ob-verse">"Go therefore and make disciples of all nations…" — Matthew 28:19</div>
+          <div class="ob-desc">The AI infrastructure built for ministry at scale. Let's set up your church's intelligence system — takes about 5 minutes.</div>
+          <div class="fg-2">
+            <div class="fg"><label class="fl">Your Name</label><input class="fi" id="ob_name" placeholder="First + Last"/></div>
+            <div class="fg"><label class="fl">Your Role</label><select class="fs" id="ob_role"><option>Lead / Senior Pastor</option><option>Executive Pastor</option><option>Communications Director</option><option>Marketing Director</option><option>Creative Director</option><option>Other</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Work Email</label><input class="fi" id="ob_email" type="email" placeholder="you@yourchurch.com"/></div>
+          <div class="fg"><label class="fl">Password</label><input class="fi" id="ob_pass" type="password" placeholder="Create a secure password"/></div>
+          <div class="ob-nav"><span></span><button class="btn btn-gold" onclick="obNext()">Continue →</button></div>
+        </div>
+        <!-- Step 1 -->
+        <div class="ob-step" id="obs1">
+          <div class="ob-eyebrow">// Church Identity</div>
+          <div class="ob-title">Tell us about<br><em>your church.</em></div>
+          <div class="ob-desc">This shapes how every agent writes, speaks, and thinks on your behalf.</div>
+          <div class="fg"><label class="fl">Church Name</label><input class="fi" id="ob_church" placeholder="e.g. Transformation Church"/></div>
+          <div class="fg-2">
+            <div class="fg"><label class="fl">City</label><input class="fi" id="ob_city" placeholder="e.g. Tulsa"/></div>
+            <div class="fg"><label class="fl">State</label><input class="fi" id="ob_state" placeholder="Oklahoma"/></div>
+          </div>
+          <div class="fg"><label class="fl">Mission Statement</label><input class="fi" id="ob_mis" placeholder="e.g. Saved people serving people by showing the world Jesus"/></div>
+          <div class="fg"><label class="fl">Avg Weekly Attendance</label><select class="fs"><option>Under 100</option><option>100–500</option><option>500–1,000</option><option selected>1,000–2,500</option><option>2,500–5,000</option><option>5,000+</option></select></div>
+          <div class="ob-nav"><button class="btn btn-outline" onclick="obBack()">← Back</button><button class="btn btn-gold" onclick="obNext()">Continue →</button></div>
+        </div>
+        <!-- Step 2 -->
+        <div class="ob-step" id="obs2">
+          <div class="ob-eyebrow">// Tone Profile</div>
+          <div class="ob-title">Train your<br><em>church's voice.</em></div>
+          <div class="ob-desc">Choose the tone that matches how your church communicates.</div>
+          <div class="tone-grid">
+            <div class="tone-card sel" onclick="document.querySelectorAll('#obs2 .tone-card').forEach(c=>c.classList.remove('sel'));this.classList.add('sel')"><div class="tc-chk">✓</div><div class="tc-ico">🔥</div><div class="tc-name">Bold & Prophetic</div><div class="tc-desc">Direct, Spirit-led, calls people higher.</div></div>
+            <div class="tone-card" onclick="document.querySelectorAll('#obs2 .tone-card').forEach(c=>c.classList.remove('sel'));this.classList.add('sel')"><div class="tc-chk">✓</div><div class="tc-ico">🕊️</div><div class="tc-name">Warm & Pastoral</div><div class="tc-desc">Approachable, nurturing, community-first.</div></div>
+            <div class="tone-card" onclick="document.querySelectorAll('#obs2 .tone-card').forEach(c=>c.classList.remove('sel'));this.classList.add('sel')"><div class="tc-chk">✓</div><div class="tc-ico">⚡</div><div class="tc-name">Modern & Cultural</div><div class="tc-desc">Culturally aware, meets people where they are.</div></div>
+            <div class="tone-card" onclick="document.querySelectorAll('#obs2 .tone-card').forEach(c=>c.classList.remove('sel'));this.classList.add('sel')"><div class="tc-chk">✓</div><div class="tc-ico">📖</div><div class="tc-name">Teaching & Deep</div><div class="tc-desc">Word-centered, depth over surface.</div></div>
+          </div>
+          <div class="fg"><label class="fl">Voice in 3 Words</label><input class="fi" placeholder="e.g. Bold, Warm, Real"/></div>
+          <div class="ob-nav"><button class="btn btn-outline" onclick="obBack()">← Back</button><button class="btn btn-gold" onclick="obNext()">Continue →</button></div>
+        </div>
+        <!-- Step 3 -->
+        <div class="ob-step" id="obs3">
+          <div class="ob-eyebrow">// Activate Agents</div>
+          <div class="ob-title">Choose your<br><em>first agents.</em></div>
+          <div class="ob-desc">Start with these recommended agents. You can add or remove any time.</div>
+          <div class="agent-grid" id="obAgents"></div>
+          <div class="ob-nav"><button class="btn btn-outline" onclick="obBack()">← Back</button><button class="btn btn-gold" onclick="obNext()">Launch Setup →</button></div>
+        </div>
+        <!-- Step 4: Complete -->
+        <div class="ob-step" id="obs4">
+          <div class="ob-complete-icon">✝</div>
+          <div class="ob-eyebrow">// Setup Complete</div>
+          <div class="ob-title">Your agents are<br><em>activated.</em></div>
+          <div class="ob-desc" id="obCompleteDesc">Welcome to Discipleship. Your AI agents are ready and trained on your church's voice, mission, and platforms.</div>
+          <div class="agent-complete-grid" id="agentPills"></div>
+          <div class="ob-verse">"I can do all things through Christ who strengthens me." — Philippians 4:13</div>
+          <div class="ob-nav"><span></span><button class="btn btn-gold" onclick="nav('home',document.querySelector('.rb'))">Enter Command Center →</button></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ══════════════════════════════════════
+// DATA
+// ══════════════════════════════════════
+const AGENTS=[
+  {id:0,ico:'✉️',name:'Newsletter Builder',cat:'newsletter',cl:'Newsletter',color:'#3B82F6',state:'on',prompt:'Write a complete Sunday newsletter for Transformation Church. Sermon: "When the Ground Shifts" — Psalm 46:1-3. Include a life-change story, 2 key announcements, and a CTA to watch the message. Voice: warm, bold, Spirit-led.'},
+  {id:1,ico:'🎯',name:'Personalization',cat:'newsletter',cl:'Newsletter',color:'#6366F1',state:'idle',prompt:'Personalize the TC newsletter for first-time online viewers. Low-barrier, welcoming, curious tone. Invite them deeper.'},
+  {id:2,ico:'📊',name:'Perf. Optimizer',cat:'newsletter',cl:'Newsletter',color:'#8B5CF6',state:'scheduled',prompt:'Analyze newsletter performance: 34.2% open rate, 8.1% CTR, subject: "When the Ground Shifts". Give 5 specific improvements for next week.'},
+  {id:3,ico:'🕊️',name:'Testimony',cat:'newsletter',cl:'Newsletter',color:'#EC4899',state:'idle',prompt:'Turn this into an email-ready testimony story (150 words): "I watched Unshakeable Week 1 alone in my car on a Tuesday. By Week 3 my wife sat next to me without me asking. We\'re in counseling now."'},
+  {id:4,ico:'🔗',name:'Channel Sync',cat:'newsletter',cl:'Newsletter',color:'#14B8A6',state:'idle',prompt:'Check alignment for Unshakeable Week 3 across: Sermon "When the Ground Shifts" (Psalm 46), IG posts (Psalm 46 quotes), Email (baptism announcement next Sunday). Find gaps and produce a unified messaging brief.'},
+  {id:5,ico:'🚀',name:'Campaign Builder',cat:'marketing',cl:'Marketing',color:'#F59E0B',state:'on',prompt:'Build a complete campaign strategy for "She Stands" — Women\'s Conference, May 17. 5-week rollout, Isaiah 54. Messaging pillars: Identity, Courage, Legacy. Include hooks, timeline, and content plan.'},
+  {id:6,ico:'🏙️',name:'Community Mktg',cat:'marketing',cl:'Marketing',color:'#10B981',state:'idle',prompt:'Create community marketing for TC Spring Block Party — North Tulsa, May 31. 800-1200 expected. Give: 3 press angles, 5 local partnership ideas, social copy, community positioning statement.'},
+  {id:7,ico:'📱',name:'Social Strategist',cat:'marketing',cl:'Marketing',color:'#F97316',state:'running',prompt:'Build a complete weekly social content brief for Unshakeable Week 3 at Transformation Church. Goal: drive Sunday in-person attendance. Include IG (3-4 posts with hooks), TikTok/Reels (2-3 hooks), YouTube (1 long + 2 shorts), and posting cadence.'},
+  {id:8,ico:'🎨',name:'Creative Brief',cat:'marketing',cl:'Marketing',color:'#A855F7',state:'idle',prompt:'Generate a creative brief for Women\'s Conference "She Stands" visual identity. Black + antique gold palette, Isaiah 54, dignified serif typography. Include: objective, audience, key message, tone, deliverables.'},
+  {id:9,ico:'🧪',name:'Growth Engine',cat:'marketing',cl:'Marketing',color:'#EF4444',state:'scheduled',prompt:'Design a YouTube thumbnail A/B experiment for TC. Current CTR: 5.2%, target: 8%+ by end of Unshakeable series. Control: dark graphic + sermon title. Variant B: face-forward + scripture overlay. Include success metrics and timeline.'},
+  {id:10,ico:'📋',name:'Exec Brief',cat:'ops',cl:'Ops',color:'#64748B',state:'scheduled',prompt:'Monday Executive Brief for Transformation Church: Attendance 2,847 (+12%), YouTube 52.1K subs / 5.2% CTR, Email 34.2% open rate, Women\'s Conference assets 4 days behind. Generate a clean 5-min leadership summary.'},
+  {id:11,ico:'🎬',name:'Sermon → Content',cat:'ops',cl:'Ops',color:'#DC2626',state:'on',prompt:'Generate a full content pack from sermon "When the Ground Shifts" — Psalm 46. Output: 3 YouTube clip ideas with titles + hooks, 2 Reel hooks + captions, 3-day devotional, 5 quote graphic texts.'},
+  {id:12,ico:'🗺️',name:'Journey Tracker',cat:'ops',cl:'Ops',color:'#7C3AED',state:'idle',prompt:'Analyze TC discipleship funnel: 52.1K YouTube, 32.4K email, 11.6K engaged, 4.8K participants, 2.8K in-person. Map the journey, identify biggest drop-off, recommend 5 actions to move people deeper.'},
+  {id:13,ico:'📈',name:'Perf. Analyst',cat:'ops',cl:'Ops',color:'#059669',state:'scheduled',prompt:'Analyze TC content performance this week: YouTube 84K views (+14%), Instagram reach 31.6K (+7%), email open 34.2% (+6pts). What\'s working, why, and what to do next week.'},
+  {id:14,ico:'💬',name:'Story Mining',cat:'ops',cl:'Ops',color:'#9333EA',state:'idle',prompt:'Process these testimonies and find the best 3 for Impact Videos. Rank by impact potential, flag the top one, and write a 30-second video script for it: "I watched TC online for 3 months then gave my life to Christ in my living room during Unshakeable."'},
+  {id:15,ico:'🤝',name:'Meeting Prep',cat:'ops',cl:'Ops',color:'#0EA5E9',state:'idle',prompt:'Pre-brief for Monday leadership meeting. Topics: Women\'s Conference asset delay (4 days behind), YouTube saturation plan Week 4, SOP documentation at 22%. Output: context, goals, key questions, risks.'},
+  {id:16,ico:'📁',name:'SOP Builder',cat:'ops',cl:'Ops',color:'#78716C',state:'idle',prompt:'Build an SOP for Sunday service production workflow — Wednesday rehearsal through post-service YouTube upload. Include roles (Stage Director, Audio, Video, Stream, Content), step-by-step timeline, checkpoints, and fail-safes.'},
+  {id:17,ico:'🗓️',name:'Content Calendar',cat:'ops',cl:'Ops',color:'#16A34A',state:'idle',prompt:'Build a 4-week content calendar aligning: Unshakeable Series finale (Weeks 4-5) + Women\'s Conference launch (3 weeks out). Cover email, Instagram, TikTok, YouTube. Flag content gaps.'},
+  {id:18,ico:'✍️',name:'Internal Comms',cat:'ops',cl:'Ops',color:'#CA8A04',state:'idle',prompt:'Write a Monday team email from Pastor M at Transformation Church. Vision cast for Women\'s Conference launch week — 3 weeks out. Tone: bold, warm, forward-focused. Open with "Hey family," close with "In it with you."'},
+  {id:19,ico:'⚡',name:'Initiative Tracker',cat:'ops',cl:'Ops',color:'#B45309',state:'scheduled',prompt:'Update initiative tracker for TC: Women\'s Conference (58% complete, at risk — 3 wks out), Unshakeable Series (Week 3 of 5, on track), YouTube Saturation Plan (75%, on track), SOP Documentation (22%, 2 weeks behind). Produce accountability report.'},
+];
+
+const AUTOS=[
+  {id:'a1',ico:'✉️',name:'Sunday Newsletter',desc:'Drafts weekly newsletter using sermon notes + live email stats',sched:'Every Sunday · 6:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Sunday 6AM','🔔 Push + Email'],active:true,last:'Today 6:41 AM',agent:0,color:'#3B82F6',goal:'Grow email open rate to 40% and increase Sunday attendance'},
+  {id:'a2',ico:'📋',name:'Monday Exec Brief',desc:'Pulls dept updates + platform metrics → leadership summary',sched:'Every Monday · 7:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Monday 7AM','🔔 Push + Email'],active:true,last:'Today 7:00 AM',agent:10,color:'#64748B',goal:'Keep leadership informed and flag risks before they become problems'},
+  {id:'a3',ico:'🎬',name:'Sermon Content Pack',desc:'Generates clips, hooks, devotionals after Sunday service',sched:'Every Sunday · 1:00 PM',chips:['trigger','notify'],chipTxt:['⚡ Post-Service Trigger','🔔 Push + Slack'],active:true,last:'Today 1:32 PM',agent:11,color:'#DC2626',goal:'Saturate YouTube and social with 7+ pieces of content every week'},
+  {id:'a4',ico:'📱',name:'Weekly Social Brief',desc:'Builds social content plan using top-performing post data',sched:'Every Friday · 9:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Friday 9AM','🔔 Push + Email'],active:true,last:'Fri Apr 18',agent:7,color:'#F97316',goal:'Double YouTube CTR to 8% and grow Instagram reach 20% by Q2'},
+  {id:'a5',ico:'📊',name:'Newsletter Optimizer',desc:'Analyzes send performance and generates next-week improvements',sched:'Every Monday · 8:00 AM',chips:['trigger','notify'],chipTxt:['⚡ Post-Send Trigger','🔔 Email'],active:true,last:'Mon Apr 21',agent:2,color:'#8B5CF6',goal:'Grow email open rate from 34% to 40% by end of Q2'},
+  {id:'a6',ico:'⚡',name:'Initiative Tracker',desc:'Weekly status on all Champion Initiatives with risk flags',sched:'Every Monday · 9:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Monday 9AM','🔔 Push + Email'],active:true,last:'Mon Apr 21',agent:19,color:'#B45309',goal:'Ensure no initiative falls behind without early warning'},
+  {id:'a7',ico:'📈',name:'Performance Pulse',desc:'Mid-week content analytics with goal-progress report',sched:'Every Wednesday · 2:00 PM',chips:['schedule'],chipTxt:['⏱ Every Wed 2PM'],active:false,last:'Wed Apr 16',agent:13,color:'#059669',goal:'Track content performance and identify what to scale each week'},
+];
+
+const GOALS=[
+  {ico:'📺',name:'YouTube Growth',desc:'Reach 75K subscribers and 7%+ CTR by Q2 end',status:'ok',statusTxt:'On Track',pct:72,tgt:'75K subs by Jun 30',agents:['Social Strategist','Sermon → Content','Growth Engine'],color:'#3B82F6'},
+  {ico:'✉️',name:'Email Engagement',desc:'Grow open rate to 40% and list to 18K subscribers',status:'ok',statusTxt:'On Track',pct:60,tgt:'40% open rate by Jun 30',agents:['Newsletter Builder','Perf. Optimizer','Personalization'],color:'#A855F7'},
+  {ico:'👥',name:'Discipleship Depth',desc:'Move 500 more people from Engaged → Participant stage',status:'risk',statusTxt:'At Risk',pct:28,tgt:'500 conversions by Jun 30',agents:['Journey Tracker','Newsletter Builder','Social Strategist'],color:'#F59E0B'},
+  {ico:'🎤',name:"Women's Conference",desc:'Sell out 600 tickets — 80% first-time attenders',status:'risk',statusTxt:'At Risk',pct:58,tgt:'600 tickets by May 17',agents:['Campaign Builder','Community Mktg','Social Strategist'],color:'#EC4899'},
+];
+
+const NOTIFS=[
+  {type:'alert',ico:'🔔',title:'Sunday Newsletter Ready to Review',desc:'Newsletter Builder completed your 6AM automation. 34.2% predicted open rate. Ready to send.',time:'6:41 AM',unread:true,cls:'',actions:['Review Draft','Send Now']},
+  {type:'suc',ico:'✅',title:'Sermon Content Pack Generated',desc:'7 pieces ready: 3 YouTube clips, 2 Reels, 3-day devotional, 5 quote graphics from "When the Ground Shifts."',time:'1:32 PM',unread:true,cls:'suc',actions:['View Pack','Open Vault']},
+  {type:'info',ico:'📊',title:'Monday Executive Brief Delivered',desc:'Attendance +12% · YouTube CTR 5.2% · Women\'s Conference assets 4 days behind. 2 open decisions flagged.',time:'7:01 AM',unread:true,cls:'info',actions:['Read Brief']},
+  {type:'warn',ico:'⚠️',title:"Goal Alert: Women's Conference At Risk",desc:'Ticket sales 58% with 3 weeks remaining. Run the Campaign Builder to accelerate the urgency phase.',time:'Yesterday',unread:false,cls:'warn',actions:['Run Campaign Builder','Dismiss']},
+  {type:'suc',ico:'🎯',title:'YouTube CTR Milestone Hit',desc:'"Unshakeable Week 2" thumbnail hit 6.1% CTR — 60% above baseline. Growth Engine recommends scaling face-forward format.',time:'Thu 4:02 PM',unread:false,cls:'',actions:['See Report']},
+];
+
+const VAULT=[
+  {
+    ico:'✉️',name:'Week 3 Newsletter — "When the Ground Shifts"',
+    prev:'Subject: When everything around you is shaking…',
+    time:'Today 6:41 AM',cat:'Newsletter',catColor:'#3B82F6',color:'#3B82F6',
+    content:`SUBJECT LINE OPTIONS
+1. "When everything around you is shaking — here's what doesn't move"
+2. "Psalm 46 changed how I face hard weeks. Here's why."
+3. "The ground shifted this week. Here's your anchor."
+
+——————————————————
+
+Hey TC family,
+
+Week 3 of Unshakeable.
+
+This Sunday, Pastor M walked us through Psalm 46 — and what hit the room wasn't just the scripture. It was the timing. A lot of you are in seasons where the ground feels like it's moving. Jobs. Relationships. Health. Uncertainty.
+
+And Psalm 46 says: God is our refuge and strength, a very present help in trouble.
+
+Not a distant God. A present one.
+
+——————————————————
+
+LIFE CHANGE THIS WEEK
+
+Marcus — one of our online community members — sent us this on Sunday afternoon:
+
+"I watched Week 1 of Unshakeable in my car on a Tuesday. I'd just left a conversation that I thought ended my marriage. By Week 3, my wife and I watched together. We're in counseling now. The series gave us language we didn't have."
+
+That's why we do this.
+
+——————————————————
+
+THIS WEEK AT TC
+
+→ Baptism Sunday is coming — April 27
+   If you've been on the fence, this is your moment. Register at tc.church/baptism
+
+→ Women's Conference — May 17
+   "She Stands" — an evening of worship, teaching, and community. Tickets moving fast.
+
+→ Small Groups forming now
+   The best way to go deeper isn't online — it's around a table. Find one at tc.church/groups
+
+In it with you,
+Transformation Church`
+  },
+  {
+    ico:'📱',name:'Social Brief — Unshakeable Week 3',
+    prev:'Hook: "What do you do when the ground beneath you moves?"',
+    time:'Yesterday 9:12 PM',cat:'Marketing',catColor:'#F97316',color:'#F97316',
+    content:`WEEKLY SOCIAL CONTENT BRIEF
+Week 3 · "Unshakeable" · When the Ground Shifts
+
+THEME: Anchor. When external circumstances shake, God is immovable. Position TC as a voice of stability — not positivity — in an unstable world.
+
+——————————————————
+
+INSTAGRAM (4 posts)
+
+Post 1 — Sunday Drop
+Format: Sermon clip — the moment Pastor M paused mid-message
+Caption: "Stop waiting for the shaking to stop. Learn to stand while it's still moving."
+Hook: Opens on silence. No music. Let the pause breathe.
+
+Post 2 — Testimony Tuesday
+Format: Static quote card
+Copy: "I watched Week 1 in my car on a Tuesday. By Week 3, my wife sat down next to me." — Marcus
+CTA: "Your story is next. We're saving you a seat."
+
+Post 3 — Thursday Depth
+Format: Carousel — 5 slides
+Headline: "5 things Psalm 46 is saying to your specific season"
+
+Post 4 — Saturday Hype
+Format: Reel — countdown to Sunday
+Text overlay: "Week 4 is the one you've been waiting for"
+
+——————————————————
+
+TIKTOK / REELS (3 hooks)
+
+Hook 1: "I used to think faith meant nothing shook you. Psalm 46 changed everything."
+Hook 2: "He didn't say IF the earth gives way. He said WHEN. There's a difference."
+Hook 3: Start mid-sentence — "…and that's when the room went completely silent."
+
+——————————————————
+
+POSTING CADENCE
+Sun 12:30 PM → Clip drop
+Tue 9:00 AM → Testimony card
+Thu 7:00 PM → Carousel
+Sat 11:00 AM → Hype reel`
+  },
+  {
+    ico:'🎬',name:'Content Pack — "Still Standing" Week 2',
+    prev:'3 YouTube clips · 2 Reel hooks · 3-day devotional',
+    time:'Mon Apr 21',cat:'Ops',catColor:'#DC2626',color:'#DC2626',
+    content:`SERMON CONTENT PACK
+"Still Standing" — Unshakeable Week 2
+Hebrews 11:1
+
+YOUTUBE CLIPS (3)
+
+Clip 1 — "The Faith Definition Nobody Talks About"
+Timestamp: 14:22 – 19:08
+Thumbnail: Close-up, expressive, text: "FAITH IS NOT WHAT YOU THINK"
+Hook: "We've been defining faith wrong for decades."
+
+Clip 2 — The Story of the Woman in the Crowd
+Timestamp: 28:14 – 33:52
+Thumbnail: text: "12 YEARS. ONE MOMENT."
+Hook: "She didn't ask for permission. She just reached."
+
+Clip 3 — The Closing Moment
+Timestamp: 48:00 – 52:20
+Thumbnail: Wide shot of room, text: "YOU'RE STILL STANDING"
+Hook: "If you're watching this, you made it through something."
+
+——————————————————
+
+REEL HOOKS
+
+Reel 1: "Faith is spelled R-I-S-K." (45 seconds, talking head)
+Reel 2: "The room went quiet for 22 seconds." (Build suspense, play the clip)
+
+——————————————————
+
+3-DAY DEVOTIONAL
+
+Day 1 — The Weight of Waiting
+"Hebrews 11 opens with a definition — not a feeling. Faith is the substance of what you're hoping for..."
+
+Day 2 — The Woman's Risk
+"She had been bleeding for 12 years. She had no medical solution, no social standing..."
+
+Day 3 — What Still Standing Looks Like
+"There's a difference between enduring and standing. Enduring is passive. Standing is active..."
+
+——————————————————
+
+QUOTE GRAPHICS (5)
+
+1. "Faith doesn't remove the storm. It tells you who's in the boat."
+2. "She reached through the crowd because she was done waiting for the crowd to move."
+3. "Still standing isn't a position. It's a declaration."
+4. "The evidence of things not seen — that's warfare, not wishful thinking."
+5. "You didn't get here by accident. You got here because something in you refused to quit."`
+  },
+  {
+    ico:'🚀',name:"Women's Conference Campaign — 'She Stands'",
+    prev:'5-week rollout · Identity, Courage, Legacy',
+    time:'Fri Apr 18',cat:'Marketing',catColor:'#EC4899',color:'#EC4899',
+    content:`CAMPAIGN STRATEGY
+"She Stands" — Women's Conference 2025
+May 17 · Transformation Church · Tulsa, Oklahoma
+
+CAMPAIGN OVERVIEW
+She Stands is not just a conference. It's a declaration. For every woman who has been told she's too much, not enough, or too late — this night is the interruption. Built around Isaiah 54.
+
+——————————————————
+
+MESSAGING PILLARS
+
+1. IDENTITY — "You were made for this room."
+She doesn't need to earn her place. She's already been given it.
+
+2. COURAGE — "Stand up. Show up. Speak."
+The moment between fear and movement. This pillar invites action.
+
+3. LEGACY — "What she does tonight echoes."
+Every woman carries someone behind her — a daughter, a younger version of herself.
+
+——————————————————
+
+5-WEEK ROLLOUT
+
+Week 1 (Apr 21) — ANNOUNCE
+"Something is happening May 17." Teaser campaign. No full reveal yet.
+
+Week 2 (Apr 28) — REVEAL
+Full reveal. "She Stands." Speaker announcement + ticket link goes live.
+Email subject: "She stands. Will you?"
+
+Week 3 (May 5) — SOCIAL PROOF
+Testimonies from past conferences. Women tagging who they're bringing.
+
+Week 4 (May 12) — URGENCY
+Tickets are moving. Countdown begins. Final seat push.
+
+Week 5 (May 17) — ACTIVATION
+Morning of. Social blitz. "Today is the day." Live content during event.
+
+——————————————————
+
+CREATIVE DIRECTION
+Color: Black, deep ivory, antique gold
+Typography: Serif-forward — dignified, not trendy
+Tone: Prophetic warmth. Not hype. Spirit-led invitation.`
+  },
+  {
+    ico:'📋',name:'Monday Executive Brief — April 21',
+    prev:'Attendance +8%, YouTube CTR 5.2%, Production SOP update needed',
+    time:'Mon Apr 21',cat:'Ops',catColor:'#64748B',color:'#64748B',
+    content:`MONDAY EXECUTIVE BRIEF
+Week of April 21, 2025 · Transformation Church
+
+WEEK AT A GLANCE
+Strong Week 2 close for Unshakeable. Digital reach outpacing last series by 14%. In-person attendance held despite Spring weather. Women's Conference campaign is behind schedule on asset delivery.
+
+——————————————————
+
+METRICS SNAPSHOT
+
+In-Person Attendance: 2,612 (↑8%)
+Online Viewers: 17,100 (↑11%)
+YouTube CTR: 5.2% (up from 3.8%)
+Email Open Rate: 31.8% (↑3pts)
+New Email Subs: +284
+Instagram Reach: 28,400 (↑6%)
+Baptism Registrations: 47 confirmed
+
+——————————————————
+
+KEY WINS
+
+→ Sermon clip "The Faith Definition Nobody Talks About" — 12K views in 48 hours
+→ Marcus testimony DM confirmed for Impact Video production
+→ Email A/B test: Curiosity subject lines outperforming directive by 9 open-rate points
+
+——————————————————
+
+FLAGS / RISKS
+
+→ YELLOW: Women's Conference graphics 4 days behind. Impacts Week 3 promo launch.
+→ YELLOW: YouTube Shorts dropped to 1/week (target is 3).
+
+——————————————————
+
+THIS WEEK'S PRIORITIES
+
+1. Approve Women's Conference Week 3 assets (Tue EOD)
+2. Process sermon → full content pack (launch Thu)
+3. Baptism Sunday logistics confirmed for all departments
+
+——————————————————
+
+OPEN DECISIONS NEEDED
+
+→ Push conference ticket price point or hold for urgency?
+→ Move Baptism Sunday announcement to Week 3 newsletter?`
+  },
+  {
+    ico:'🕊️',name:'Testimony Story — Marcus (Marriage Restoration)',
+    prev:'Impact Video Script: "I watched Unshakeable Week 1 alone in my car…"',
+    time:'Wed Apr 16',cat:'Story',catColor:'#9333EA',color:'#9333EA',
+    content:`IMPACT STORY — 30-SECOND VIDEO SCRIPT
+Marcus · Marriage Restoration
+Source: Direct message, April 14 2025
+
+HOOK (0-5 seconds)
+[VISUAL: Empty car. Rain on the windshield. Silence.]
+[TEXT OVERLAY: "I was done."]
+
+THE BEFORE (5-18 seconds)
+MARCUS (V.O.):
+"I watched Week 1 of Unshakeable alone in my car on a Tuesday.
+I had just walked out of the worst conversation of my life.
+I thought it was over."
+
+THE ENCOUNTER (18-26 seconds)
+[VISUAL: Phone screen — TC live stream]
+MARCUS (V.O.):
+"Something in that message made me go home.
+And I put my phone on the TV.
+My wife sat down next to me without me asking."
+
+THE AFTER (26-30 seconds)
+[VISUAL: Marcus and wife — present day, warm, alive]
+MARCUS (V.O.):
+"We're in counseling now. The series gave us language we didn't have."
+[TEXT OVERLAY: "Your story isn't over."]
+
+——————————————————
+
+EMAIL VERSION (150 words)
+
+Marcus didn't plan to watch the sermon.
+
+He was sitting in his car — rain on the windows, the weight of what felt like a final conversation pressing down on him. He opened his phone and found TC streaming.
+
+He watched. He drove home. He put his phone on the TV without knowing why.
+
+His wife sat down next to him without being asked.
+
+By Week 3 of Unshakeable, they were watching together. They're in counseling now. The series gave them language they didn't have.
+
+"It saved my marriage," he said. "I know that sounds like a lot. But it's true."
+
+That's why we don't stop.`
+  },
+];
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let currentAgent=null, currentTone='bold-prophetic', obStep=0, veSection=0, vtType='newsletter';
+const agStates={};
+AGENTS.forEach(a=>{agStates[a.id]=a.state});
+
+const vtPrompts={
+  newsletter:"Write a 2-paragraph newsletter intro for Sunday's sermon on 'When the Ground Shifts' — Psalm 46. Announce baptism Sunday next week.",
+  social:"Write an Instagram caption for a Sunday sermon clip about finding peace when life feels uncertain.",
+  internal:"Write a Monday morning team email from the pastor encouraging the team after a strong Sunday service.",
+  cta:"Write a CTA for the Women's Conference 'She Stands' — 2 weeks out, tickets are limited."
+};
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+function nav(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.rb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+// ══════════════════════════════════════
+// BUILD TILES
+// ══════════════════════════════════════
+function makeTile(a,container,small=false){
+  const st=agStates[a.id];
+  const el=document.createElement('div');
+  el.className=`tile ${st==='on'||st==='running'?'on':''} ${st==='running'?'running':''} ${st==='scheduled'?'scheduled':''}`;
+  el.id=`t${a.id}_${container.id}`;
+  el.innerHTML=`<div class="tile-glow"></div>
+    <div class="tile-top">
+      <div class="tile-ico" style="background:${a.color}1a">${a.ico}</div>
+      <button class="tile-tog" onclick="event.stopPropagation();toggleTile(${a.id})"></button>
+    </div>
+    <div class="tile-name">${a.name}</div>
+    <div class="tile-cat">${a.cl}</div>
+    <div class="tile-status st-${st}"><div class="t-dot"></div><span class="t-txt">${st==='running'?'Running…':st==='on'?'Active':st==='scheduled'?'Scheduled':'Idle'}</span></div>
+    ${st==='scheduled'?`<div class="tile-next">Next: Mon 7:00 AM</div>`:''}`;
+  el.onclick=()=>openAgent(a.id);
+  let pressT;
+  el.addEventListener('mousedown',()=>{pressT=setTimeout(()=>{openSchedule(a.id)},700)});
+  el.addEventListener('mouseup',()=>clearTimeout(pressT));
+  el.addEventListener('mouseleave',()=>clearTimeout(pressT));
+  container.appendChild(el);
+}
+
+function buildTiles(){
+  const cats={newsletter:'agN',marketing:'agM',ops:'agO'};
+  AGENTS.forEach(a=>{const c=document.getElementById(cats[a.cat]);if(c)makeTile(a,c)});
+  const h=document.getElementById('homeAgents');
+  AGENTS.filter(a=>['on','running','scheduled'].includes(a.state)).slice(0,8).forEach(a=>makeTile(a,h));
+  // Onboarding agents (first 8)
+  const ob=document.getElementById('obAgents');
+  AGENTS.slice(0,8).forEach(a=>{
+    const d=document.createElement('div');
+    d.className=`tile on`;
+    d.style.cursor='default';
+    d.innerHTML=`<div class="tile-glow"></div><div class="tile-top"><div class="tile-ico" style="background:${a.color}1a">${a.ico}</div><button class="tile-tog" style="pointer-events:none"></button></div><div class="tile-name">${a.name}</div><div class="tile-cat">${a.cl}</div>`;
+    ob.appendChild(d);
+  });
+}
+
+function toggleTile(id){
+  const cur=agStates[id];
+  const next=(cur==='on'||cur==='running')?'idle':'on';
+  agStates[id]=next;
+  document.querySelectorAll(`[id^="t${id}_"]`).forEach(el=>{
+    el.className=`tile ${next==='on'?'on':''}`;
+    const dot=el.querySelector('.t-dot');
+    const txt=el.querySelector('.t-txt');
+    if(dot){dot.parentElement.className=`tile-status st-${next}`}
+    if(txt)txt.textContent=next==='on'?'Active':'Idle';
+  });
+  toast(next==='on'?'suc':'info',AGENTS[id].name,next==='on'?'Agent activated':'Agent turned off');
+}
+
+// ══════════════════════════════════════
+// BUILD AUTOS
+// ══════════════════════════════════════
+// track outputs per automation
+const autoOutputs={};
+let spotlightAutoId=null;
+
+function makeAuto(a,container){
+  const el=document.createElement('div');
+  el.className=`ac ${a.active?'live':''}`;
+  el.id=`ac_${a.id}_${container.id}`;
+  const chipColors={schedule:'chip-blue',notify:'chip-amber',trigger:'chip-purple',green:'chip-green'};
+  const lastOut=autoOutputs[a.id];
+  el.innerHTML=`
+    <div class="ac-ico" style="background:${a.color}18">${a.ico}</div>
+    <div class="ac-body">
+      <div class="ac-name">${a.name}</div>
+      <div class="ac-desc">${a.desc}</div>
+      <div class="ac-chips">${a.chips.map((c,i)=>`<span class="chip-sm ${chipColors[c]||'chip-blue'}">${a.chipTxt[i]}</span>`).join('')}</div>
+      ${lastOut?`<div class="ac-last-output has-output" onclick="event.stopPropagation();showSpotlight('${a.id}')">✓ Last output: ${lastOut.preview}</div>`:`<div class="ac-last-output">No output yet — press Run Now to generate</div>`}
+    </div>
+    <div class="ac-right" style="gap:8px">
+      <div class="ac-time"><strong>${a.last}</strong>Last Run</div>
+      <button class="ac-run-now" id="acrun_${a.id}_${container.id}" onclick="event.stopPropagation();runAutoNow('${a.id}',this)">▶ Run Now</button>
+      <button class="tog-btn ${a.active?'on':''}" onclick="event.stopPropagation();toggleAuto('${a.id}',this)"></button>
+    </div>`;
+  el.onclick=()=>openSchedule(a.agent);
+  container.appendChild(el);
+}
+
+function buildAutos(){
+  const h=document.getElementById('homeAutos');
+  const all=document.getElementById('allAutos');
+  if(h) AUTOS.filter(a=>a.active).slice(0,3).forEach(a=>makeAuto(a,h));
+  if(all) AUTOS.forEach(a=>makeAuto(a,all));
+}
+
+function toggleAuto(id,btn){
+  const a=AUTOS.find(x=>x.id===id);
+  a.active=!a.active;
+  btn.classList.toggle('on',a.active);
+  const cards=document.querySelectorAll(`[id^="ac_${id}_"]`);
+  cards.forEach(c=>{if(c)c.classList.toggle('live',a.active)});
+  // update active count
+  const activeN=AUTOS.filter(x=>x.active).length;
+  const badge=document.getElementById('autoActiveCount');
+  if(badge)badge.textContent=activeN+' active';
+  toast(a.active?'suc':'info',a.name,a.active?'Automation activated':'Automation paused');
+}
+
+async function runAutoNow(id,btn){
+  const a=AUTOS.find(x=>x.id===id);
+  if(!a){toast('err','Error','Automation not found');return;}
+  const agent=AGENTS[a.agent];
+  if(!agent){toast('err','Error','Agent not found');return;}
+
+  // Disable all Run Now buttons for this automation
+  document.querySelectorAll(`[id^="acrun_${id}_"]`).forEach(b=>{
+    b.disabled=true;b.textContent='⟳ Running…';b.classList.add('running');
+  });
+
+  // Open the drawer immediately in loading state
+  openDrawer(a.ico, a.color, a.name + ' — Generating…', 'Started just now…');
+  spotlightAutoId=id;
+
+  // Build system prompt from voice profile
+  const vName=document.getElementById('v_name')?.value||'Transformation Church';
+  const vMission=document.getElementById('v_mission')?.value||'Saved people serving people by showing the world Jesus';
+  const v3w=document.getElementById('v_3words')?.value||'Bold, Warm, Real';
+  const vNot=document.getElementById('v_not')?.value||'Religious, Corporate, Preachy';
+  const chips=[...document.querySelectorAll('#styleChips .chip-tog.on')].map(c=>c.textContent).join(', ');
+  const sample=document.getElementById('v_sample1')?.value||'';
+  const forbidden=[...document.querySelectorAll('#forbiddenTags .wtag')].map(t=>t.textContent.replace(' ✕','').trim()).join(', ');
+  const goal=a.goal||'';
+
+  const sys=`You are a ministry AI agent for ${vName}. Mission: "${vMission}". Voice: ${v3w}. Style: ${chips||'Bold, Warm, Spirit-led'}. NEVER sound: ${vNot}. Never use: ${forbidden||'churchy, preachy'}. This automation goal: "${goal}". Agent role: ${agent.name}. ${sample?`Match this voice style: "${sample.substring(0,200)}"`:''} Write in plain text. Be specific, practical, production-ready.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:agent.prompt}]})
+    });
+    const data=await resp.json();
+
+    if(data.error){
+      drawerShowError('API Error: '+data.error.message);
+      return;
+    }
+
+    const out=data.content?.map(b=>b.text||'').join('')||'No response received.';
+
+    // Update drawer header
+    document.getElementById('drawerName').textContent=a.name;
+    document.getElementById('drawerTime').textContent='Completed · '+new Date().toLocaleTimeString();
+    document.getElementById('drawerLoading').style.display='none';
+
+    // Show content area
+    document.getElementById('drawerEmpty').style.display='none';
+    const content=document.getElementById('drawerContent');
+    content.style.display='block';
+    content.textContent='';
+    content.classList.add('streaming');
+
+    // Show action buttons
+    document.getElementById('drawerCopyBtn').style.display='inline-flex';
+    document.getElementById('drawerVaultBtn').style.display='inline-flex';
+
+    // Store output
+    const preview=out.substring(0,65)+'…';
+    autoOutputs[id]={content:out,preview,time:new Date().toLocaleTimeString(),autoName:a.name,autoIco:a.ico,color:a.color};
+    a.last='Just now';
+
+    // Typewriter output into drawer
+    let i=0;const chars=out.split('');const spd=Math.max(4,Math.floor(3200/chars.length));
+    function type(){
+      if(i<chars.length){
+        content.textContent+=chars[i++];
+        document.getElementById('drawerScroll').scrollTop=99999;
+        setTimeout(type,spd);
+      }else{
+        content.classList.remove('streaming');
+        refreshAutoCards();
+        toast('suc',a.name,'Output ready — tap + Vault to save');
+        addNotification('suc','✅',a.name+' Complete',preview,'View Output,Save to Vault');
+      }
+    }
+    type();
+
+  }catch(e){
+    drawerShowError('Network error: '+e.message+'. Check your connection.');
+  }finally{
+    document.querySelectorAll(`[id^="acrun_${id}_"]`).forEach(b=>{
+      b.disabled=false;b.textContent='▶ Run Now';b.classList.remove('running');
+    });
+  }
+}
+
+function openDrawer(ico, color, name, time){
+  const drawer=document.getElementById('outputDrawer');
+  // Reset state
+  document.getElementById('drawerIco').textContent=ico;
+  document.getElementById('drawerIco').style.background=color+'20';
+  document.getElementById('drawerName').textContent=name;
+  document.getElementById('drawerTime').textContent=time;
+  document.getElementById('drawerLoading').style.display='flex';
+  document.getElementById('drawerEmpty').style.display='none';
+  document.getElementById('drawerContent').style.display='none';
+  document.getElementById('drawerContent').textContent='';
+  document.getElementById('drawerCopyBtn').style.display='none';
+  document.getElementById('drawerVaultBtn').style.display='none';
+  drawer.style.display='flex';
+  drawer.style.animation='drawerUp 0.3s cubic-bezier(0.22,1,0.36,1) both';
+}
+
+function closeDrawer(){
+  const drawer=document.getElementById('outputDrawer');
+  drawer.style.animation='drawerDown 0.25s ease both';
+  setTimeout(()=>{drawer.style.display='none';},240);
+}
+
+function drawerShowError(msg){
+  document.getElementById('drawerLoading').style.display='none';
+  document.getElementById('drawerEmpty').style.display='none';
+  const content=document.getElementById('drawerContent');
+  content.style.display='block';
+  content.textContent='⚠️ '+msg;
+  content.style.color='var(--red)';
+  toast('err','Agent Error',msg);
+}
+
+function copyDrawerOutput(){
+  const t=document.getElementById('drawerContent').textContent;
+  if(!t||t.startsWith('⚠️')){toast('info','Nothing to copy','Run the agent first');return;}
+  navigator.clipboard.writeText(t).then(()=>toast('suc','Copied!','Output copied to clipboard'));
+}
+
+function saveDrawerToVault(){
+  const t=document.getElementById('drawerContent').textContent;
+  if(!t||t.startsWith('⚠️')){toast('info','Nothing to save','Run the agent first');return;}
+  const name=document.getElementById('drawerName').textContent;
+  const id=spotlightAutoId;
+  const a=AUTOS.find(x=>x.id===id);
+  const agent=a?AGENTS[a.agent]:AGENTS[0];
+  VAULT.unshift({
+    ico:a?a.ico:'⚡',
+    name,
+    prev:t.substring(0,70)+'…',
+    content:t,
+    time:'Just now',
+    cat:agent?agent.cl:'Output',
+    catColor:agent?agent.color:'var(--gold)',
+    color:agent?agent.color:'var(--gold)'
+  });
+  selectedVaultIdx=null;
+  const vl=document.getElementById('vaultList');
+  if(vl){vl.innerHTML='';buildVault();}
+  toast('suc','Saved to Vault',name+' stored — open Vault to read it');
+  document.getElementById('drawerVaultBtn').textContent='✓ Saved';
+  document.getElementById('drawerVaultBtn').style.background='var(--green)';
+}
+
+function refreshAutoCards(){
+  ['homeAutos','allAutos'].forEach(cid=>{
+    const c=document.getElementById(cid);
+    if(!c)return;
+    c.innerHTML='';
+    if(cid==='homeAutos') AUTOS.filter(a=>a.active).slice(0,3).forEach(a=>makeAuto(a,c));
+    else AUTOS.forEach(a=>makeAuto(a,c));
+  });
+}
+
+function showSpotlight(id){
+  const out=autoOutputs[id];
+  if(!out)return;
+  openDrawer(out.autoIco, out.color, out.autoName, out.time);
+  document.getElementById('drawerLoading').style.display='none';
+  document.getElementById('drawerEmpty').style.display='none';
+  const content=document.getElementById('drawerContent');
+  content.style.display='block';
+  content.textContent=out.content;
+  content.style.color='var(--cream)';
+  document.getElementById('drawerCopyBtn').style.display='inline-flex';
+  document.getElementById('drawerVaultBtn').style.display='inline-flex';
+  document.getElementById('drawerVaultBtn').textContent='+ Vault';
+  document.getElementById('drawerVaultBtn').style.background='';
+  spotlightAutoId=id;
+}
+
+function copySpotlight(){copyDrawerOutput();}
+function saveSpotlightToVault(){saveDrawerToVault();}
+
+function addNotification(type,ico,title,desc,actions){
+  NOTIFS.unshift({type,ico,title,description:desc,unread:true,cls:type==='suc'?'suc':type==='info'?'info':'warn',actions:actions?actions.split(','):[]});
+  const list=document.getElementById('notifList');
+  if(list){list.innerHTML='';buildNotifs()}
+  // update badge
+  const badge=document.getElementById('notifBadge');
+  if(badge)badge.style.display='block';
+}
+
+// ══════════════════════════════════════
+// BUILD GOALS
+// ══════════════════════════════════════
+function buildGoals(){
+  const grid=document.getElementById('goalsGrid');
+  GOALS.forEach((g,i)=>{
+    const el=document.createElement('div');
+    el.className='gc';
+    el.style.animationDelay=(i*0.07)+'s';
+    el.innerHTML=`
+      <div class="gc-top"><div class="gc-ico" style="background:${g.color}18">${g.ico}</div><span class="gc-st ${g.status}">${g.statusTxt==='On Track'?'✓ On Track':g.statusTxt==='At Risk'?'⚠ At Risk':'✕ Behind'}</span></div>
+      <div class="gc-name">${g.name}</div>
+      <div class="gc-desc">${g.desc}</div>
+      <div class="gc-prow"><span class="gc-pct">${g.pct}%</span><span class="gc-tgt">${g.tgt}</span></div>
+      <div class="gc-track"><div class="gc-fill" style="width:0%;background:${g.color}"></div></div>
+      <div class="gc-agents">${g.agents.map(a=>`<span class="gc-tag">${a}</span>`).join('')}</div>`;
+    el.onclick=()=>{
+      const ag=AGENTS.find(a=>a.name===g.agents[0]);
+      if(ag)openAgent(ag.id);
+    };
+    grid.appendChild(el);
+  });
+  setTimeout(()=>{
+    document.querySelectorAll('.gc-fill').forEach((el,i)=>{el.style.width=GOALS[i].pct+'%'});
+  },400);
+}
+
+// ══════════════════════════════════════
+// BUILD NOTIFICATIONS
+// ══════════════════════════════════════
+function buildNotifs(){
+  const list=document.getElementById('notifList');
+  NOTIFS.forEach(n=>{
+    const el=document.createElement('div');
+    el.className=`ni ${n.unread?'unread':''} ${n.cls}`;
+    const iconBg={suc:'var(--green-soft)',info:'var(--blue-soft)',warn:'var(--amber-soft)',alert:'var(--gold-soft)'};
+    el.innerHTML=`
+      <div class="ni-ico" style="background:${iconBg[n.type]||iconBg.alert}">${n.ico}</div>
+      <div class="ni-body">
+        <div class="ni-title">${n.title}</div>
+        <div class="ni-desc">${n.desc}</div>
+        ${n.actions?`<div class="ni-actions">${n.actions.map((a,i)=>`<button class="ni-btn ${i===0?'p':'s'}" onclick="handleNotif('${a}')">${a}</button>`).join('')}</div>`:''}
+      </div>
+      <div class="ni-time">${n.time}</div>`;
+    list.appendChild(el);
+  });
+  const unread=NOTIFS.filter(n=>n.unread).length;
+  document.getElementById('notifBadge').style.display=unread>0?'block':'none';
+}
+
+function handleNotif(action){
+  if(action==='Review Draft'||action==='Send Now'){toast('suc','Newsletter',action+' triggered')}
+  else if(action==='View Pack'||action==='Open Vault'){nav('vault',document.querySelectorAll('.rb')[6])}
+  else if(action==='Read Brief'){toast('info','Brief','Opening executive brief…')}
+  else if(action==='Run Campaign Builder'){openAgent(5)}
+  else if(action==='See Report'){openAgent(9)}
+  else{toast('info','Action',action)}
+}
+
+function markAllRead(){
+  document.querySelectorAll('.ni.unread').forEach(el=>el.classList.remove('unread','suc','info','warn'));
+  document.getElementById('notifBadge').style.display='none';
+  toast('suc','Notifications','All marked as read');
+}
+
+// ══════════════════════════════════════
+// BUILD VAULT
+// ══════════════════════════════════════
+let selectedVaultIdx = null;
+
+function buildVault(items){
+  const list = document.getElementById('vaultList');
+  if(!list) return;
+  const data = items || VAULT;
+  list.innerHTML = '';
+
+  // Update count
+  const countEl = document.getElementById('vaultCount');
+  if(countEl) countEl.textContent = data.length + ' output' + (data.length!==1?'s':'') + ' saved';
+
+  if(data.length === 0){
+    list.innerHTML = '<div style="padding:24px;text-align:center;opacity:0.4;font-size:12px;font-weight:700;color:var(--cream-dim)">No outputs found</div>';
+    return;
+  }
+
+  data.forEach((v, i)=>{
+    const el = document.createElement('div');
+    const isSelected = selectedVaultIdx === i;
+    el.className = 'vi';
+    el.id = 'vi_' + i;
+    el.style.cssText = isSelected
+      ? 'border-color:rgba(240,180,41,0.35);background:rgba(240,180,41,0.05);border-left:3px solid var(--gold);'
+      : '';
+    el.innerHTML = `
+      <div class="vi-ico" style="background:${v.color}18">${v.ico}</div>
+      <div class="vi-body">
+        <div class="vi-title">${v.name}</div>
+        <div class="vi-prev">${v.prev}</div>
+      </div>
+      <div class="vi-right">
+        <div class="vi-time">${v.time}</div>
+        <span class="vi-cat" style="background:${v.catColor}18;color:${v.catColor}">${v.cat}</span>
+      </div>`;
+    el.onclick = () => openVaultItem(i, items);
+    list.appendChild(el);
+  });
+}
+
+function openVaultItem(idx, items){
+  const data = items || VAULT;
+  const v = data[idx];
+  if(!v) return;
+
+  selectedVaultIdx = idx;
+
+  // Highlight selected item
+  document.querySelectorAll('#vaultList .vi').forEach((el, i) => {
+    if(i === idx){
+      el.style.borderColor = 'rgba(240,180,41,0.35)';
+      el.style.background = 'rgba(240,180,41,0.05)';
+      el.style.borderLeft = '3px solid var(--gold)';
+    } else {
+      el.style.borderColor = '';
+      el.style.background = '';
+      el.style.borderLeft = '';
+    }
+  });
+
+  // Hide empty state, show preview
+  document.getElementById('vaultPreviewEmpty').style.display = 'none';
+  const previewContent = document.getElementById('vaultPreviewContent');
+  previewContent.style.display = 'flex';
+
+  // Populate header
+  const ico = document.getElementById('vpIco');
+  ico.textContent = v.ico;
+  ico.style.background = v.color + '18';
+
+  document.getElementById('vpName').textContent = v.name;
+  document.getElementById('vpTime').textContent = v.time;
+
+  const cat = document.getElementById('vpCat');
+  cat.textContent = v.cat;
+  cat.style.background = v.catColor + '18';
+  cat.style.color = v.catColor;
+
+  // Populate body
+  const text = document.getElementById('vpText');
+  text.textContent = '';
+
+  if(v.content){
+    // Animate content in
+    text.style.opacity = '0';
+    text.textContent = v.content;
+    requestAnimationFrame(()=>{
+      text.style.transition = 'opacity 0.3s ease';
+      text.style.opacity = '1';
+    });
+  } else {
+    // No full content — show preview + offer to regenerate
+    text.style.opacity = '1';
+    text.textContent = v.prev + '\n\n— Full content not available for this output.\n   Click ↺ Re-run to regenerate it.';
+  }
+
+  // Scroll preview to top
+  const vpBody = document.getElementById('vpBody');
+  if(vpBody) vpBody.scrollTop = 0;
+}
+
+function filterVault(query){
+  if(!query.trim()){
+    buildVault();
+    return;
+  }
+  const q = query.toLowerCase();
+  const filtered = VAULT.filter(v =>
+    v.name.toLowerCase().includes(q) ||
+    v.prev.toLowerCase().includes(q) ||
+    v.cat.toLowerCase().includes(q) ||
+    (v.content && v.content.toLowerCase().includes(q))
+  );
+  buildVault(filtered);
+}
+
+function copyVaultItem(){
+  // Copy whatever is in the preview pane
+  const text = document.getElementById('vpText');
+  if(!text || !text.textContent || document.getElementById('vaultPreviewEmpty').style.display !== 'none' === false){
+    // nothing selected
+    if(document.getElementById('vaultPreviewContent').style.display === 'none'){
+      toast('info','Nothing selected','Click an output on the left first');
+      return;
+    }
+  }
+  const content = text ? text.textContent : '';
+  if(!content){ toast('info','Nothing to copy','Select an output first'); return; }
+  navigator.clipboard.writeText(content).then(()=> toast('suc','Copied!','Full output copied to clipboard'));
+}
+
+function rerunVaultItem(){
+  if(selectedVaultIdx === null){ toast('info','Select an output','Click an output first'); return; }
+  const v = VAULT[selectedVaultIdx];
+  // Find matching agent by name
+  const agent = AGENTS.find(a => v.name.toLowerCase().includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(v.cat.toLowerCase()));
+  if(agent){
+    openAgent(agent.id);
+    toast('info','Re-running','Opening '+agent.name+' with same context');
+  } else {
+    openAgent(7); // default to social strategist
+    toast('info','Re-run','Opening agent — paste your context');
+  }
+}
+
+// ══════════════════════════════════════
+// AGENT MODAL
+// ══════════════════════════════════════
+// ══════════════════════════════════════
+// SMART FIELDS PER AGENT
+// ══════════════════════════════════════
+const AGENT_FIELDS = {
+  0: [ // Newsletter Builder
+    {id:'sermon_topic', label:'Sermon Topic / Series', type:'input', placeholder:'e.g. "When the Ground Shifts" — Psalm 46'},
+    {id:'announcements', label:'Key Announcements', type:'textarea', placeholder:'Upcoming events, sign-ups, key moments…'},
+    {id:'testimony', label:'Testimony or Life-Change Moment (optional)', type:'textarea', placeholder:'Paste a quote, DM, or story…', short:true},
+    {id:'cta_goal', label:'Primary CTA Goal', type:'select', options:['Watch Sunday Message','Register for Event','Give / Generosity','Join a Group','Download App']},
+  ],
+  1: [ // Personalization Engine
+    {id:'base_email', label:'Paste Your Base Newsletter Draft', type:'textarea', placeholder:'Paste the full email to personalize…'},
+    {id:'segment', label:'Generate Version For', type:'select', options:['First-Time Viewers','Consistent Attenders','Volunteers','Donors','Digital-Only Audience']},
+  ],
+  2: [ // Performance Optimizer
+    {id:'open_rate', label:'Last Open Rate (%)', type:'input', placeholder:'e.g. 34.2'},
+    {id:'click_rate', label:'Click Rate (%)', type:'input', placeholder:'e.g. 8.1'},
+    {id:'subject_used', label:'Subject Line Used', type:'input', placeholder:'Paste the subject line…'},
+    {id:'what_worked', label:'What Did You Notice? (optional)', type:'textarea', placeholder:'Sections that got replies, feedback, attention…', short:true},
+  ],
+  3: [ // Testimony Converter
+    {id:'raw_testimony', label:'Raw Testimony / Comment / DM', type:'textarea', placeholder:'Paste the raw story, transcript, or comment…'},
+    {id:'output_format', label:'Output Format', type:'select', options:['Newsletter Short Story (150 words)','Email Feature Block (250 words)','Social Caption + Quote','Video Script (30 sec)']},
+  ],
+  4: [ // Channel Sync
+    {id:'sermon_this_week', label:'This Week\'s Sermon Title + Theme', type:'input', placeholder:'e.g. "When the Ground Shifts" — Psalm 46'},
+    {id:'social_posts', label:'Planned Social Posts', type:'textarea', placeholder:'What\'s going out on Instagram, TikTok, Facebook…', short:true},
+    {id:'newsletter_draft', label:'Newsletter Draft (paste or describe)', type:'textarea', placeholder:'Paste draft or summarize what\'s in the email…', short:true},
+  ],
+  5: [ // Campaign Builder
+    {id:'series_title', label:'Series Title', type:'input', placeholder:'e.g. "Unshakeable"'},
+    {id:'theme', label:'Theme / Big Idea', type:'textarea', placeholder:'Core spiritual tension or truth this series addresses…', short:true},
+    {id:'scripture', label:'Key Scripture', type:'input', placeholder:'e.g. Hebrews 12:1-2'},
+    {id:'series_length', label:'Series Length', type:'select', options:['3 Weeks','4 Weeks','5 Weeks','6 Weeks','Single Event']},
+  ],
+  6: [ // Community Marketing
+    {id:'city', label:'Target City / Neighborhood', type:'input', placeholder:'e.g. Tulsa, OK — North Tulsa'},
+    {id:'initiative', label:'Initiative or Event to Promote', type:'input', placeholder:'e.g. Back to School Backpack Drive'},
+    {id:'audience', label:'Target Community Audience', type:'textarea', placeholder:'Who in the community are you trying to reach?', short:true},
+  ],
+  7: [ // Social Strategist
+    {id:'week_theme', label:'This Week\'s Theme or Series', type:'input', placeholder:'e.g. Week 3 of "Unshakeable"'},
+    {id:'content_goals', label:'Primary Content Goal', type:'select', options:['Grow New Audience','Drive Event Registration','Increase Watch Time','Build Community','Promote Series Launch']},
+    {id:'top_performing', label:'What Performed Best Last Week? (optional)', type:'textarea', placeholder:'e.g. "The testimony clip got 40K views"', short:true},
+  ],
+  8: [ // Creative Brief
+    {id:'project_name', label:'Project / Initiative Name', type:'input', placeholder:'e.g. "Rooted" Series Launch Graphics'},
+    {id:'objective', label:'What Does This Need to Accomplish?', type:'textarea', placeholder:'What action, feeling, or awareness should it create?', short:true},
+    {id:'deliverables', label:'Known Deliverables', type:'textarea', placeholder:'e.g. Series graphic, 3 IG posts, email header…', short:true},
+  ],
+  9: [ // Growth Engine
+    {id:'channel', label:'Channel to Experiment On', type:'select', options:['YouTube Thumbnails','Email Subject Lines','Instagram Hooks','TikTok Formats','Sermon Series Names','Event Promotion']},
+    {id:'current_result', label:'Current Performance Baseline', type:'textarea', placeholder:'e.g. YouTube CTR is 3.2%, avg for our size is 5-7%', short:true},
+    {id:'hypothesis', label:'Your Hypothesis (optional)', type:'input', placeholder:'What do you think might work better?'},
+  ],
+  10: [ // Exec Brief
+    {id:'attendance', label:'Sunday Attendance / Views', type:'input', placeholder:'e.g. In-person: 2,400 | Online: 14,000'},
+    {id:'dept_updates', label:'Department Updates', type:'textarea', placeholder:'Programming, Production, Marketing, Pastoral…'},
+    {id:'wins_risks', label:'Key Wins + Any Risks', type:'textarea', placeholder:'What went well? What\'s a concern?', short:true},
+  ],
+  11: [ // Sermon → Content
+    {id:'sermon_title', label:'Sermon Title', type:'input', placeholder:'e.g. "When the Ground Shifts"'},
+    {id:'key_points', label:'Key Points / Outline', type:'textarea', placeholder:'Paste outline, notes, or key moments from the message…'},
+    {id:'best_moment', label:'Best Quotable Moment or Story', type:'textarea', placeholder:'Most powerful line, story, or turn in the sermon…', short:true},
+  ],
+  12: [ // Journey Tracker
+    {id:'audience_data', label:'Audience Data (YouTube, email, in-person)', type:'textarea', placeholder:'e.g. 52K YouTube subs, 8K weekly online viewers, 2,400 in-person…'},
+    {id:'current_pathways', label:'Current Next-Step Pathways', type:'textarea', placeholder:'e.g. Watch → Subscribe → Membership Class → Small Groups…', short:true},
+    {id:'biggest_gap', label:'Where\'s the Biggest Drop-Off?', type:'input', placeholder:'e.g. People watch but never take a next step'},
+  ],
+  13: [ // Performance Analyst
+    {id:'platform_data', label:'Paste Performance Data (any format)', type:'textarea', placeholder:'YouTube views, IG reach/saves, email rates, attendance…'},
+    {id:'time_period', label:'Time Period', type:'select', options:['Last 7 Days','Last 30 Days','Last Quarter','Last Year','Series Run']},
+    {id:'content_question', label:'Your Specific Question', type:'input', placeholder:'e.g. "Why did our clip go viral last week?"'},
+  ],
+  14: [ // Story Mining
+    {id:'raw_stories', label:'Paste Raw Stories, Comments, or DMs', type:'textarea', placeholder:'Dump comments, DMs, emails, form submissions — all of it…'},
+    {id:'output_type', label:'What Do You Need?', type:'select', options:['Story Bank Summary','Impact Video Script (30 sec)','Email Testimonial Feature','Instagram Caption Story','Flag Top 3 for Production']},
+  ],
+  15: [ // Meeting Prep
+    {id:'meeting_type', label:'Meeting Type', type:'select', options:['1:1 Check-In','Department Team Meeting','Leadership/MGT Meeting','Cross-Team Alignment','Planning Session','Post-Meeting Debrief']},
+    {id:'meeting_context', label:'Meeting Context / Notes', type:'textarea', placeholder:'What\'s the meeting about? Topics, notes, issues…'},
+    {id:'participants', label:'Who\'s In the Room?', type:'input', placeholder:'e.g. Pastor M, Marketing Director, Production Lead'},
+  ],
+  16: [ // SOP Builder
+    {id:'process_dept', label:'Department / Area', type:'select', options:['Programming','Production','Marketing','Pastoral Care','Volunteer Management','Digital/Tech','Administration']},
+    {id:'process_dump', label:'Brain-Dump: How Does This Process Work?', type:'textarea', placeholder:'Describe the process however it lives in your head. Messy is fine.'},
+    {id:'process_goal', label:'What Should This SOP Ensure Never Breaks?', type:'input', placeholder:'e.g. "Sunday morning never starts without a tech run-through"'},
+  ],
+  17: [ // Content Calendar
+    {id:'planning_period', label:'Planning Period', type:'select', options:['Next 4 Weeks','Next Month','Quarter (3 Months)','Half Year']},
+    {id:'upcoming_series', label:'Upcoming Sermon Series', type:'textarea', placeholder:'List series titles, themes, dates…', short:true},
+    {id:'key_moments', label:'Key Church Moments / Events', type:'textarea', placeholder:'Easter, Women\'s Conference, Baptism Sunday, Giving Campaign…', short:true},
+  ],
+  18: [ // Internal Comms
+    {id:'comm_type', label:'Communication Type', type:'select', options:['Team All-Staff Email','Leadership Update','Transition / Change Announcement','Vision Cast Message','Appreciation / Recognition','Correction / Course Adjustment']},
+    {id:'comm_context', label:'Context and Key Points', type:'textarea', placeholder:'What needs to be said? What\'s the situation? What action is needed?'},
+    {id:'tone_notes', label:'Tone Notes (optional)', type:'input', placeholder:'e.g. "Firm but encouraging"'},
+  ],
+  19: [ // Initiative Tracker
+    {id:'initiatives', label:'Active Initiatives / Champion Initiatives', type:'textarea', placeholder:'List each with owner, deadline, and current status…'},
+    {id:'wins', label:'Wins This Quarter', type:'textarea', placeholder:'What\'s been completed or celebrated?', short:true},
+    {id:'concerns', label:'Concerns or Stalled Initiatives', type:'textarea', placeholder:'What\'s behind, unclear, or needs a decision?', short:true},
+  ],
+};
+
+function buildSmartFields(agentId){
+  const fields = AGENT_FIELDS[agentId];
+  const container = document.getElementById('amSmartFields');
+  container.innerHTML = '';
+  if(!fields){ 
+    // fallback generic textarea
+    container.innerHTML = `<textarea class="am-textarea" id="amInput" placeholder="Describe what you need — or press Run to use smart defaults…"></textarea>`;
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-bottom:9px;';
+  fields.forEach(f => {
+    const fg = document.createElement('div');
+    fg.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+    const lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--cream-dim);font-family:"DM Mono",monospace;';
+    lbl.textContent = f.label;
+    fg.appendChild(lbl);
+    if(f.type === 'select'){
+      const sel = document.createElement('select');
+      sel.id = 'sf_' + f.id;
+      sel.className = 'am-textarea';
+      sel.style.minHeight = 'unset';
+      sel.style.padding = '8px 11px';
+      sel.style.cursor = 'pointer';
+      f.options.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; op.style.background='#1a1a1c'; sel.appendChild(op); });
+      fg.appendChild(sel);
+    } else if(f.type === 'textarea'){
+      const ta = document.createElement('textarea');
+      ta.id = 'sf_' + f.id;
+      ta.className = 'am-textarea';
+      ta.placeholder = f.placeholder || '';
+      ta.style.minHeight = f.short ? '52px' : '72px';
+      fg.appendChild(ta);
+    } else {
+      const inp = document.createElement('input');
+      inp.id = 'sf_' + f.id;
+      inp.className = 'am-textarea';
+      inp.style.minHeight = 'unset';
+      inp.style.padding = '9px 11px';
+      inp.placeholder = f.placeholder || '';
+      fg.appendChild(inp);
+    }
+    wrap.appendChild(fg);
+  });
+  container.appendChild(wrap);
+}
+
+function getSmartFieldsContent(agentId){
+  const fields = AGENT_FIELDS[agentId];
+  if(!fields){
+    const el = document.getElementById('amInput');
+    return el ? el.value.trim() : '';
+  }
+  let content = '';
+  let hasAnyValue = false;
+  fields.forEach(f => {
+    const el = document.getElementById('sf_' + f.id);
+    if(el && el.value && el.value.trim()){
+      content += `**${f.label}:**\n${el.value.trim()}\n\n`;
+      hasAnyValue = true;
+    }
+  });
+  // Fall back to agent default prompt if nothing filled in
+  return hasAnyValue ? content.trim() : AGENTS[agentId].prompt;
+}
+
+function openAgent(id){
+  const a=AGENTS[id];
+  currentAgent=id;
+  const catBg={newsletter:'var(--blue-soft)',marketing:'var(--gold-soft)',ops:'var(--green-soft)'};
+  const catClr={newsletter:'var(--blue)',marketing:'var(--gold)',ops:'var(--green)'};
+  document.getElementById('amBg').style.background=`radial-gradient(circle at top right,${a.color}28,transparent 60%)`;
+  document.getElementById('amIco').style.background=a.color+'1a';
+  document.getElementById('amIco').textContent=a.ico;
+  document.getElementById('amName').textContent=a.name;
+  const cat=document.getElementById('amCat');
+  cat.textContent=a.cl;cat.style.background=catBg[a.cat];cat.style.color=catClr[a.cat];
+  document.getElementById('amEmpty').style.display='flex';
+  document.getElementById('amLoad').classList.remove('active');
+  document.getElementById('amOut').classList.remove('visible');
+  document.getElementById('amOut').textContent='';
+  // Build smart fields for this agent
+  buildSmartFields(id);
+  document.getElementById('agentOverlay').classList.add('open');
+}
+
+async function runAgent(){
+  const a=AGENTS[currentAgent];
+  const input = getSmartFieldsContent(currentAgent);
+  const btn=document.getElementById('amRunBtn');
+  btn.disabled=true;btn.textContent='⟳ Running…';
+  document.getElementById('amEmpty').style.display='none';
+  document.getElementById('amLoad').classList.add('active');
+  document.getElementById('amOut').classList.remove('visible');
+  document.getElementById('amOut').textContent='';
+
+  // Build system prompt from voice profile
+  const vName=document.getElementById('v_name')?.value||'Transformation Church';
+  const vMission=document.getElementById('v_mission')?.value||'Saved people serving people by showing the world Jesus';
+  const v3w=document.getElementById('v_3words')?.value||'Bold, Warm, Real';
+  const vNot=document.getElementById('v_not')?.value||'Religious, Corporate, Preachy';
+  const chips=[...document.querySelectorAll('#styleChips .chip-tog.on')].map(c=>c.textContent).join(', ');
+  const sample1=document.getElementById('v_sample1')?.value||'';
+  const forbidden=[...document.querySelectorAll('#forbiddenTags .wtag')].map(t=>t.textContent.replace(' ✕','').trim()).join(', ');
+
+  const sys=`You are a ministry AI agent for ${vName}. Mission: "${vMission}". Voice: ${v3w}. Style: ${chips||'Bold, Warm, Spirit-led'}. NEVER sound: ${vNot}. Never use: ${forbidden||'churchy, preachy'}. Agent role: ${a.name}. ${sample1?`Match this voice style: "${sample1.substring(0,200)}"`:''} ${document.getElementById('v_audience')?.value?`Audience: ${document.getElementById('v_audience').value.substring(0,100)}`:''} ${document.getElementById('v_pastor_name')?.value?`Pastor: ${document.getElementById('v_pastor_name').value}. Opens emails with "${document.getElementById('v_pastor_open')?.value||'Hey family,'}". Closes with "${document.getElementById('v_pastor_close')?.value||'In it with you,'}".`:''} Write in plain text. Be specific, practical, and production-ready. No generic filler.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:input}]})
+    });
+    const data=await resp.json();
+    if(data.error){ throw new Error(data.error.message); }
+    const out=data.content?.map(b=>b.text||'').join('')||'No response received.';
+    document.getElementById('amLoad').classList.remove('active');
+    const outEl=document.getElementById('amOut');
+    outEl.classList.add('visible','streaming');
+    outEl.textContent='';
+    let i=0;const chars=out.split('');const spd=Math.max(5,Math.floor(3000/chars.length));
+    function type(){if(i<chars.length){outEl.textContent+=chars[i++];document.getElementById('amBox').scrollTop=9999;setTimeout(type,spd)}else{
+      outEl.classList.remove('streaming');
+      toast('suc',a.name,'Output ready — saved to vault');
+      VAULT.unshift({ico:a.ico,name:a.name+' Output',prev:out.substring(0,70)+'…',content:out,time:'Just now',cat:a.cl,catColor:a.color,color:a.color});
+      selectedVaultIdx=null;
+      const vl=document.getElementById('vaultList');if(vl){vl.innerHTML='';buildVault();}
+    }}
+    type();
+    agStates[a.id]='on';
+  }catch(e){
+    document.getElementById('amLoad').classList.remove('active');
+    document.getElementById('amOut').classList.add('visible');
+    document.getElementById('amOut').textContent='⚠️ Error: '+e.message;
+  }finally{btn.disabled=false;btn.textContent='▶ Run Now'}
+}
+
+function copyOutput(){
+  const t=document.getElementById('amOut').textContent;
+  if(!t){toast('info','Nothing to copy','Run the agent first');return}
+  navigator.clipboard.writeText(t).then(()=>toast('suc','Copied!','Output copied to clipboard'));
+}
+
+// ══════════════════════════════════════
+// SCHEDULE MODAL
+// ══════════════════════════════════════
+function openSchedule(id){
+  if(id!==null&&id!==undefined){
+    const a=AGENTS[id];
+    document.getElementById('smIco').textContent=a.ico;
+    document.getElementById('smIco').style.background=a.color+'1a';
+    document.getElementById('smTitle').textContent='Schedule: '+a.name;
+    document.getElementById('smSub').textContent='Automate this agent — you\'ll be notified of results';
+  }else{
+    document.getElementById('smIco').textContent='⏱';
+    document.getElementById('smIco').style.background='var(--gold-soft)';
+    document.getElementById('smTitle').textContent='New Automation';
+    document.getElementById('smSub').textContent='Choose an agent to run on a schedule';
+  }
+  document.getElementById('schedOverlay').classList.add('open');
+}
+
+function selFreq(el){document.querySelectorAll('.fp').forEach(f=>f.classList.remove('sel'));el.classList.add('sel')}
+
+function saveAuto(){
+  closeModal('schedOverlay');
+  toast('suc','Automation Activated','Agent scheduled — you\'ll be notified when it runs');
+  setTimeout(()=>toast('alert','Automation Preview','Your agent will run and notify you automatically'),3200);
+}
+
+// ══════════════════════════════════════
+// VOICE
+// ══════════════════════════════════════
+function voiceTab(i,el){
+  document.querySelectorAll('.ve-item').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.ve-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('vp'+i).classList.add('active');
+  veSection=i;
+  // Move test area to active panel (only panels 0-4, not audience/pastor)
+  const ta=document.getElementById('voiceTestArea');
+  if(i<=4) document.getElementById('vp'+i).appendChild(ta);
+}
+
+function selTone(el,val){
+  document.querySelectorAll('#vp1 .tone-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');currentTone=val;updateVS();
+}
+
+function updateVS(){
+  const filled=[
+    document.getElementById('v_name')?.value.length>3,
+    currentTone!=='',
+    document.querySelectorAll('#styleChips .chip-tog.on').length>3,
+    document.getElementById('v_sample1')?.value.length>20,
+    false
+  ];
+  const score=Math.round(55+filled.filter(Boolean).length*9);
+  document.getElementById('vsBar').style.width=score+'%';
+  document.getElementById('vsScore').textContent=score;
+}
+
+function setVT(type,el){
+  document.querySelectorAll('.vt-t').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');vtType=type;
+  document.getElementById('vtInput').value=vtPrompts[type];
+}
+
+async function runVoiceTest(){
+  const prompt=document.getElementById('vtInput').value.trim();
+  if(!prompt)return;
+  const btn=document.getElementById('vtBtn');
+  btn.disabled=true;btn.textContent='⟳ Generating…';
+  const outBox=document.getElementById('vtOutput');
+  const outText=document.getElementById('vtText');
+  outBox.classList.remove('visible');outText.textContent='';
+
+  const vName=document.getElementById('v_name')?.value||'Transformation Church';
+  const vMission=document.getElementById('v_mission')?.value||'';
+  const v3w=document.getElementById('v_3words')?.value||'Bold, Warm, Real';
+  const vNot=document.getElementById('v_not')?.value||'Religious, Corporate';
+  const sample=document.getElementById('v_sample1')?.value||'';
+  const forbidden=[...document.querySelectorAll('#forbiddenTags .wtag')].map(t=>t.textContent.replace(' ✕','').trim()).join(', ');
+  const sys=`You are a voice-matched writing assistant for ${vName}. Mission: "${vMission}". Voice: ${v3w}. NEVER sound: ${vNot}. Never use: ${forbidden}. ${sample?`Match this voice style: "${sample.substring(0,200)}"`:''} Write only the requested content. Be specific, real, and production-ready.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const out=data.content?.map(b=>b.text||'').join('')||'No response.';
+    outBox.classList.add('visible');
+    outText.classList.add('streaming');outText.textContent='';
+    let i=0;const chars=out.split('');const spd=Math.max(6,Math.floor(2800/chars.length));
+    function type(){if(i<chars.length){outText.textContent+=chars[i++];setTimeout(type,spd)}else outText.classList.remove('streaming')}
+    type();
+  }catch(e){outBox.classList.add('visible');outText.textContent='Error: '+e.message}
+  finally{btn.disabled=false;btn.textContent='▶ Generate Preview'}
+}
+
+function saveVoice(){
+  const btn=document.querySelector('#pg-voice .btn-gold');
+  if(btn){btn.textContent='✓ Saved!';btn.style.background='#22C55E';setTimeout(()=>{btn.textContent='Save Profile';btn.style.background=''},2400)}
+  toast('suc','Voice Profile','Saved — all agents updated');
+}
+
+function addWord(type){
+  const inp=document.getElementById(type==='f'?'fbInput':'rqInput');
+  const val=inp.value.trim();if(!val)return;
+  const container=document.getElementById(type==='f'?'forbiddenTags':'reqTags');
+  const el=document.createElement('span');
+  el.className='wtag'+(type==='r'?' rtag':'');
+  el.textContent=val+' ✕';
+  el.onclick=()=>{el.remove();updateVS()};
+  container.appendChild(el);inp.value='';updateVS();
+}
+
+// ══════════════════════════════════════
+// ONBOARDING
+// ══════════════════════════════════════
+function obNext(){
+  if(obStep<4){
+    document.getElementById('obs'+obStep).classList.remove('active');
+    obStep++;
+    document.getElementById('obs'+obStep).classList.add('active');
+    const pct=((obStep)/5)*100;
+    document.getElementById('obBar').style.width=pct+'%';
+    document.getElementById('obLbl').textContent=`Step ${Math.min(obStep+1,5)} of 5`;
+    if(obStep===4){
+      const name=document.getElementById('ob_church')?.value||'Your Church';
+      document.getElementById('obCompleteDesc').textContent=`Welcome to Discipleship, ${name}. Your AI agents are ready and trained on your church's voice, mission, and platforms. The mission doesn't wait on bandwidth anymore.`;
+      const pills=document.getElementById('agentPills');
+      pills.innerHTML='';
+      AGENTS.slice(0,10).forEach((a,i)=>{
+        const el=document.createElement('div');
+        el.className='agent-pill';
+        el.style.animationDelay=(i*0.06)+'s';
+        el.innerHTML=`<span class="agent-pill-ico">${a.ico}</span>${a.name}`;
+        pills.appendChild(el);
+      });
+    }
+  }
+}
+function obBack(){
+  if(obStep>0){
+    document.getElementById('obs'+obStep).classList.remove('active');
+    obStep--;
+    document.getElementById('obs'+obStep).classList.add('active');
+    const pct=((obStep)/5)*100;
+    document.getElementById('obBar').style.width=pct+'%';
+    document.getElementById('obLbl').textContent=`Step ${obStep+1} of 5`;
+  }
+}
+
+// ══════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function closeOverlay(e,id){if(e.target.id===id)closeModal(id)}
+
+// ══════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════
+function toast(type,title,sub){
+  const icons={suc:'✅',alert:'🔔',info:'ℹ️',err:'❌'};
+  const wrap=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.innerHTML=`<div class="toast-ico">${icons[type]||'●'}</div><div><div class="toast-title">${title}</div><div class="toast-sub">${sub}</div></div>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),260)},3400);
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  const h=new Date().getHours();
+  document.getElementById('greet').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Pastor M';
+  buildTiles();buildAutos();buildGoals();buildNotifs();buildVault();
+  setTimeout(()=>{document.getElementById('vsBar').style.width='78%'},500);
+  // Move voice test to first active panel
+  const ta=document.getElementById('voiceTestArea');
+  document.getElementById('vp0').appendChild(ta);
+  // Live toasts
+  setTimeout(()=>toast('suc','🤖 Automation Complete','Social Strategist finished — content brief ready'),5000);
+  setTimeout(()=>toast('alert','📊 Goal Alert','Women\'s Conference at 58% — 3 weeks out'),9000);
+});
+</script>
+</body>
+</html>
