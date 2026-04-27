@@ -325,11 +325,89 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 /* streaming */
 .streaming::after{content:'▋';animation:cur 0.7s infinite;color:var(--gold);font-size:13px}
 @keyframes cur{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ── AUTOMATION OUTPUT DRAWER ── */
+.ac-expanded{display:none;border-top:1px solid var(--border);margin-top:12px;padding-top:12px}
+.ac-expanded.open{display:block;animation:pageIn 0.22s ease both}
+.ac-out-tabs{display:flex;gap:5px;margin-bottom:10px}
+.ac-tab{font-size:9px;font-weight:800;padding:4px 10px;border-radius:20px;cursor:pointer;transition:all 0.15s;border:1.5px solid var(--border2);background:var(--surface2);color:var(--cream-dim);letter-spacing:0.04em;text-transform:uppercase}
+.ac-tab:hover{color:var(--cream)}.ac-tab.active{background:var(--gold-soft);border-color:rgba(240,180,41,0.28);color:var(--gold)}
+.ac-out-box{background:var(--bg2);border-radius:10px;padding:13px;min-height:72px;border:1px solid var(--border)}
+.ac-out-empty{display:flex;align-items:center;justify-content:center;gap:8px;min-height:60px;opacity:0.4;font-size:11px;font-weight:700;color:var(--cream-dim)}
+.ac-out-loading{display:none;align-items:center;justify-content:center;gap:8px;min-height:60px;font-size:11px;font-weight:700;color:var(--gold)}
+.ac-out-loading.active{display:flex}
+.ac-out-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;line-height:1.7;color:var(--cream);white-space:pre-wrap;display:none}
+.ac-out-text.visible{display:block}
+.ac-out-actions{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.ac-history-list{display:flex;flex-direction:column;gap:7px}
+.ac-hist-item{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--surface);border-radius:9px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.ac-hist-item:hover{border-color:var(--border2)}
+.ac-hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ac-hist-body{flex:1;min-width:0}.ac-hist-name{font-size:11px;font-weight:700;color:var(--white);margin-bottom:1px}.ac-hist-prev{font-size:10px;color:var(--cream-dim);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-hist-time{font-size:9px;color:var(--cream-dim);font-weight:700;flex-shrink:0}
+/* expanded card */
+.ac.expanded{flex-wrap:wrap;align-items:flex-start}
+.ac.expanded .ac-expanded{width:100%;flex-basis:100%}
+/* run now btn on card */
+.ac-run-now{font-size:9px;font-weight:800;padding:5px 11px;border-radius:20px;border:none;background:var(--gold);color:var(--bg);cursor:pointer;transition:all 0.18s;white-space:nowrap;letter-spacing:0.04em}
+.ac-run-now:hover{background:#e5a820;transform:scale(1.04)}
+.ac-run-now:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.ac-run-now.running{background:var(--green-soft);color:var(--green);border:1.5px solid rgba(34,197,94,0.3)}
+/* last output preview chip on card */
+.ac-last-output{margin-top:5px;font-size:9px;color:var(--cream-dim);font-weight:500;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;cursor:pointer}
+.ac-last-output:hover{color:var(--gold)}
+.ac-last-output.has-output{color:var(--green)}
 </style>
 </head>
 <body>
 
 <div class="toast-wrap" id="toasts"></div>
+
+<!-- ════════ GLOBAL AUTOMATION OUTPUT DRAWER ════════ -->
+<div id="outputDrawer" style="
+  position:fixed;bottom:0;left:72px;right:0;
+  background:var(--bg2);
+  border-top:2px solid var(--gold);
+  z-index:800;
+  display:none;
+  flex-direction:column;
+  max-height:55vh;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+  animation:drawerUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
+">
+  <!-- Drawer handle bar -->
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">
+    <div id="drawerIco" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--gold-soft)"></div>
+    <div style="flex:1;min-width:0">
+      <div id="drawerName" style="font-size:13px;font-weight:800;color:var(--white);line-height:1.2"></div>
+      <div id="drawerTime" style="font-size:10px;color:var(--cream-dim);font-weight:600;margin-top:1px"></div>
+    </div>
+    <!-- Loading indicator -->
+    <div id="drawerLoading" style="display:none;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold)">
+      <span style="display:inline-flex;gap:3px">
+        <span style="width:4px;height:4px;background:var(--gold);border-radius:50%;animation:blink 1.2s infinite;display:inline-block"></span>
+        <span style="width:4px;height:4px;background:var(--gold);border-radius:50%;animation:blink 1.2s 0.2s infinite;display:inline-block"></span>
+        <span style="width:4px;height:4px;background:var(--gold);border-radius:50%;animation:blink 1.2s 0.4s infinite;display:inline-block"></span>
+      </span>
+      Generating…
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="btn btn-surface btn-sm" id="drawerCopyBtn" onclick="copyDrawerOutput()" style="display:none">⎘ Copy</button>
+      <button class="btn btn-gold btn-sm" id="drawerVaultBtn" onclick="saveDrawerToVault()" style="display:none">+ Vault</button>
+      <button class="btn btn-surface btn-sm" onclick="closeDrawer()" style="padding:6px 10px;font-size:13px">✕</button>
+    </div>
+  </div>
+  <!-- Drawer content -->
+  <div style="flex:1;overflow-y:auto;padding:18px 24px" id="drawerScroll">
+    <div id="drawerEmpty" style="display:flex;align-items:center;justify-content:center;height:80px;gap:8px;opacity:0.4;font-size:11px;font-weight:700;color:var(--cream-dim)">Waiting for output…</div>
+    <div id="drawerContent" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;line-height:1.8;color:var(--cream);white-space:pre-wrap;display:none"></div>
+  </div>
+</div>
+
+<style>
+@keyframes drawerUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes drawerDown{from{transform:translateY(0);opacity:1}to{transform:translateY(100%);opacity:0}}
+</style>
 
 <!-- ════════ AGENT RUN MODAL ════════ -->
 <div class="overlay" id="agentOverlay" onclick="closeOverlay(event,'agentOverlay')">
@@ -351,7 +429,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         <div class="am-loading" id="amLoad"><div class="am-dots"><span></span><span></span><span></span></div>Generating…</div>
         <div class="am-out-text" id="amOut"></div>
       </div>
-      <textarea class="am-textarea" id="amInput" placeholder="Describe what you need — or press Run to use smart defaults…"></textarea>
+      <!-- Smart fields injected here per agent -->
+      <div id="amSmartFields"></div>
       <div class="am-actions">
         <button class="btn btn-gold" id="amRunBtn" onclick="runAgent()" style="flex:1;justify-content:center;">▶ Run Now</button>
         <button class="btn btn-blue" onclick="closeModal('agentOverlay');openSchedule(currentAgent)">⏱ Schedule</button>
@@ -478,16 +557,42 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <!-- ════ SCHEDULE ════ -->
     <div class="page" id="pg-schedule">
       <div class="ph">
-        <div class="ph-left"><h1>Automation Scheduler</h1><p>Agents run automatically — you get notified of every output</p></div>
+        <div class="ph-left"><h1>Automation Scheduler</h1><p>Tap <strong style="color:var(--gold)">▶ Run Now</strong> to fire instantly · Toggle to pause · Output appears below each card</p></div>
         <div class="ph-right"><button class="btn btn-gold btn-sm" onclick="openSchedule(null)">+ New Automation</button></div>
       </div>
-      <div class="sec-lbl">Running Automations <span style="background:var(--green-soft);color:var(--green);font-size:9px;padding:2px 8px;border-radius:20px;margin-left:5px;font-weight:800;">6 active</span></div>
+
+      <!-- Output spotlight -->
+      <div id="autoSpotlight" style="display:none;background:var(--surface);border-radius:var(--r);border:1px solid rgba(240,180,41,0.25);padding:18px;margin-bottom:18px;animation:pageIn 0.3s ease both">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div id="spotIco" style="width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--gold-soft)"></div>
+          <div style="flex:1;min-width:120px">
+            <div id="spotName" style="font-size:13px;font-weight:800;color:var(--white);margin-bottom:1px"></div>
+            <div id="spotTime" style="font-size:10px;color:var(--cream-dim);font-weight:600"></div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="btn btn-surface btn-sm" onclick="copySpotlight()">⎘ Copy</button>
+            <button class="btn btn-gold btn-sm" onclick="saveSpotlightToVault()">+ Vault</button>
+            <button class="btn btn-surface btn-sm" style="padding:6px 9px;" onclick="document.getElementById('autoSpotlight').style.display='none'">✕</button>
+          </div>
+        </div>
+        <div id="spotLoading" style="display:none;align-items:center;gap:8px;padding:16px 0;font-size:11px;font-weight:700;color:var(--gold)">
+          <div style="display:flex;gap:3px"><span style="animation:blink 1.2s infinite;display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%"></span><span style="animation:blink 1.2s 0.2s infinite;display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%"></span><span style="animation:blink 1.2s 0.4s infinite;display:inline-block;width:4px;height:4px;background:var(--gold);border-radius:50%"></span></div>
+          Agent running…
+        </div>
+        <div id="spotContent" style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;line-height:1.75;color:var(--cream);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding-right:4px"></div>
+      </div>
+
+      <div class="sec-lbl">
+        Automations
+        <span style="background:var(--green-soft);color:var(--green);font-size:9px;padding:2px 8px;border-radius:20px;margin-left:5px;font-weight:800;" id="autoActiveCount">6 active</span>
+      </div>
       <div class="auto-list" id="allAutos"></div>
-      <div class="sec-lbl" style="margin-top:4px;">How It Works</div>
+
+      <div class="sec-lbl" style="margin-top:8px;">How It Works</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:24px">
-        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">⏱</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Set a Schedule</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Choose when each agent runs — daily, weekly, before Sunday, after service, or on a custom trigger.</div></div>
-        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">🎯</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Give It a Goal</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Tell the agent what you're trying to achieve — grow YouTube, increase attendance, close the giving gap.</div></div>
-        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">🔔</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Get Notified</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">When it runs, you get a notification with the output ready to review. No buttons. Just results.</div></div>
+        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">▶</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Run Now</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Hit Run Now on any automation to fire it instantly. Output appears at the top of this page — no need to find the agent separately.</div></div>
+        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">⏱</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Auto Schedule</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Each automation runs on its own schedule — daily, weekly, before Sunday, after service, or any custom trigger you set.</div></div>
+        <div style="background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)"><div style="font-size:22px;margin-bottom:8px">🔔</div><div style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:4px">Get Notified</div><div style="font-size:10px;color:var(--cream-dim);font-weight:500;line-height:1.5">Every output triggers a notification. Review, copy, save to vault, or send directly — all without switching pages.</div></div>
       </div>
     </div>
 
@@ -512,16 +617,69 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     </div>
 
     <!-- ════ VAULT ════ -->
-    <div class="page" id="pg-vault">
-      <div class="ph">
-        <div class="ph-left"><h1>Output Vault</h1><p>247 saved · 38 this week · All agent outputs stored here</p></div>
-        <div class="ph-right">
-          <button class="btn btn-outline btn-sm" onclick="toast('info','Export','Exporting vault as ZIP…')">↓ Export</button>
+    <div class="page" id="pg-vault" style="padding:0;display:flex;flex-direction:column;height:100%">
+      <!-- Vault top bar -->
+      <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2)">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--white)">Output Vault</div>
+          <div style="font-size:11px;color:var(--cream-dim);margin-top:2px;font-weight:500" id="vaultCount">Loading outputs…</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <!-- Search -->
+          <div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:0 11px;height:32px">
+            <span style="font-size:12px;color:var(--cream-dim)">⌕</span>
+            <input id="vaultSearch" style="background:transparent;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:12px;color:var(--white);width:160px" placeholder="Search outputs…" oninput="filterVault(this.value)" />
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="copyVaultItem()">⎘ Copy</button>
           <button class="btn btn-gold btn-sm" onclick="openAgent(7)">+ New Output</button>
         </div>
       </div>
-      <div class="sec-lbl">Recent Outputs <span class="sec-lbl-act">View all 247 →</span></div>
-      <div class="vault-list" id="vaultList"></div>
+
+      <!-- Split layout: list left, preview right -->
+      <div style="flex:1;display:grid;grid-template-columns:340px 1fr;overflow:hidden;min-height:0">
+
+        <!-- LEFT: scrollable list -->
+        <div style="border-right:1px solid var(--border);overflow-y:auto;background:var(--bg2)" id="vaultListPane">
+          <div class="vault-list" id="vaultList" style="padding:10px;gap:6px"></div>
+        </div>
+
+        <!-- RIGHT: preview pane -->
+        <div style="display:flex;flex-direction:column;overflow:hidden;background:var(--black)" id="vaultPreviewPane">
+
+          <!-- Empty state -->
+          <div id="vaultPreviewEmpty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0.3">
+            <div style="font-size:40px">📂</div>
+            <div style="font-size:14px;font-weight:700;color:var(--cream-dim)">Select an output to read it</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#2a2a30">Click any item on the left</div>
+          </div>
+
+          <!-- Preview content (hidden until item selected) -->
+          <div id="vaultPreviewContent" style="display:none;flex-direction:column;height:100%">
+
+            <!-- Preview header -->
+            <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;flex-shrink:0;background:var(--surface)">
+              <div id="vpIco" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0"></div>
+              <div style="flex:1;min-width:0">
+                <div id="vpName" style="font-size:15px;font-weight:800;color:var(--white);margin-bottom:4px;line-height:1.2"></div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <span id="vpCat" style="font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px"></span>
+                  <span id="vpTime" style="font-size:10px;color:var(--cream-dim);font-weight:600"></span>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-shrink:0">
+                <button class="btn btn-surface btn-sm" onclick="copyVaultItem()" title="Copy full content">⎘ Copy</button>
+                <button class="btn btn-gold btn-sm" onclick="rerunVaultItem()" title="Re-run this agent">↺ Re-run</button>
+              </div>
+            </div>
+
+            <!-- Preview body -->
+            <div style="flex:1;overflow-y:auto;padding:24px 28px" id="vpBody">
+              <div id="vpText" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;line-height:1.82;color:var(--cream);white-space:pre-wrap;max-width:680px"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ════ VOICE PROFILE ════ -->
@@ -541,6 +699,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <div class="ve-item" onclick="voiceTab(2,this)"><span class="ve-item-icon">⚙️</span><span class="ve-item-text">Style Dials</span><div class="ve-dot" style="background:var(--gold)"></div></div>
           <div class="ve-item" onclick="voiceTab(3,this)"><span class="ve-item-icon">📝</span><span class="ve-item-text">Writing Samples</span><div class="ve-dot" style="background:var(--gold)"></div></div>
           <div class="ve-item" onclick="voiceTab(4,this)"><span class="ve-item-icon">🚫</span><span class="ve-item-text">Language Rules</span><div class="ve-dot" style="background:var(--surface3)"></div></div>
+          <div class="ve-item" onclick="voiceTab(5,this)"><span class="ve-item-icon">👥</span><span class="ve-item-text">Audience Profile</span><div class="ve-dot" style="background:var(--surface3)"></div></div>
+          <div class="ve-item" onclick="voiceTab(6,this)"><span class="ve-item-icon">👤</span><span class="ve-item-text">Pastor Voice</span><div class="ve-dot" style="background:var(--surface3)"></div></div>
         </div>
         <div>
           <!-- Panel 0: Identity -->
@@ -601,6 +761,89 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           </div>
           <!-- Panel 4: Language Rules -->
           <div class="ve-panel" id="vp4">
+            <div class="ve-section-title">Language <em>Rules</em></div>
+            <div class="ve-desc">Set explicit guardrails — words to never use and phrases to always include.</div>
+            <div class="fg"><label class="fl" style="margin-bottom:8px">⛔ Never Use These Words</label>
+              <div class="word-tags" id="forbiddenTags">
+                <span class="wtag" onclick="this.remove()">Churchy ✕</span>
+                <span class="wtag" onclick="this.remove()">Sinners ✕</span>
+                <span class="wtag" onclick="this.remove()">Brethren ✕</span>
+                <span class="wtag" onclick="this.remove()">Amen (as filler) ✕</span>
+              </div>
+              <div class="word-input-row"><input class="word-fi" id="fbInput" placeholder="Add a forbidden word…" onkeydown="if(event.key==='Enter')addWord('f')"/><button class="btn btn-surface btn-sm" onclick="addWord('f')">+ Add</button></div>
+            </div>
+            <div class="fg"><label class="fl" style="margin-bottom:8px">✅ Always Include These</label>
+              <div class="word-tags" id="reqTags">
+                <span class="wtag rtag" onclick="this.remove()">Family ✕</span>
+                <span class="wtag rtag" onclick="this.remove()">Life change ✕</span>
+                <span class="wtag rtag" onclick="this.remove()">Real ✕</span>
+              </div>
+              <div class="word-input-row"><input class="word-fi" id="rqInput" placeholder="Add a required word…" onkeydown="if(event.key==='Enter')addWord('r')"/><button class="btn btn-surface btn-sm" onclick="addWord('r')">+ Add</button></div>
+            </div>
+            <div class="fg"><label class="fl">Signature Phrases</label><textarea class="ft" placeholder="e.g. 'Transformation is not a destination — it's a daily decision.'">Transformation is not a destination — it's a daily decision.
+We're better together.
+This is your church.</textarea></div>
+          </div>
+
+          <!-- Panel 5: Audience Profile -->
+          <div class="ve-panel" id="vp5">
+            <div class="ve-section-title">Audience <em>Profile</em></div>
+            <div class="ve-desc">Tell every agent exactly who you're writing for. This calibrates relevance, empathy, and accessibility across all outputs.</div>
+            <div class="fg"><label class="fl">Primary Audience Description</label><textarea class="ft tall" id="v_audience" placeholder="Who does your church primarily reach? Demographics, life stage, cultural background, spiritual journey stage…" oninput="updateVS()"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="fg"><label class="fl">Average Age Range</label><select class="fs" id="v_age_range" onchange="updateVS()"><option>Primarily 25-40</option><option>Primarily 18-30</option><option>Mixed / All ages</option><option>Primarily 35-55</option><option>Primarily 40+</option></select></div>
+              <div class="fg"><label class="fl">Cultural Makeup</label><select class="fs" id="v_cultural" onchange="updateVS()"><option>Multiethnic / Diverse</option><option>Primarily Black</option><option>Primarily White</option><option>Primarily Hispanic/Latino</option><option>Majority + diverse</option></select></div>
+            </div>
+            <div class="fg" style="margin-bottom:8px"><label class="fl" style="margin-bottom:8px">Spiritual Journey Mix</label>
+              <div class="chips-wrap">
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Unchurched seekers</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">New believers</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Returning Christians</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Lifelong believers</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Church hurt</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Spiritually curious</div>
+              </div>
+            </div>
+            <div class="fg"><label class="fl">What does your audience want most?</label><textarea class="ft" id="v_wants" placeholder="e.g. Hope, community, answers, belonging, healing, clarity on purpose…" oninput="updateVS()"></textarea></div>
+            <div class="fg"><label class="fl">What are they running FROM?</label><textarea class="ft" id="v_running_from" placeholder="e.g. Religious trauma, loneliness, meaninglessness, broken family patterns…" oninput="updateVS()" style="min-height:68px;"></textarea></div>
+          </div>
+
+          <!-- Panel 6: Pastor Voice -->
+          <div class="ve-panel" id="vp6">
+            <div class="ve-section-title">Pastor <em>Voice</em></div>
+            <div class="ve-desc">Train the Internal Comms agent and all leadership communication tools to write in your pastor's personal voice.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="fg"><label class="fl">Pastor's Name / Title</label><input class="fi" id="v_pastor_name" value="Pastor M" oninput="updateVS()"/></div>
+              <div class="fg"><label class="fl">Communication Style</label><select class="fs" id="v_pastor_style" onchange="updateVS()"><option>Direct but warm</option><option>Highly encouraging</option><option>Prophetically bold</option><option>Thoughtful and measured</option></select></div>
+            </div>
+            <div class="fg"><label class="fl">How does the pastor typically open a team email?</label><input class="fi" id="v_pastor_open" value="Hey family," placeholder="e.g. Team, Hey all, Good morning," oninput="updateVS()"/></div>
+            <div class="fg"><label class="fl">How do they typically close?</label><input class="fi" id="v_pastor_close" value="In it with you," placeholder="e.g. Grateful for you, Let's go, Together," oninput="updateVS()"/></div>
+            <div class="fg"><label class="fl">Paste a real team email, message, or note from the pastor</label><textarea class="ft tall" id="v_pastor_sample" placeholder="The more authentic the better — even a Slack message or text. The AI extracts voice patterns." oninput="updateVS()">Hey family,
+
+Quick thought before this Sunday.
+
+We're in Week 3 of Unshakeable and I keep feeling like someone in the room — or watching online — needs exactly what we're about to say.
+
+Don't let busy beat you to it. Be there.
+
+And if you can, bring one person who needs to hear it.
+
+I'll see you Sunday. Let's go change some lives.
+
+In it with you,
+Pastor M</textarea></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl" style="margin-bottom:8px">Leadership Values in Communication</label>
+              <div class="chips-wrap">
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Accountability</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Vision-casting</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Team honor</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Humor</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Direct feedback</div>
+                <div class="chip-tog" onclick="this.classList.toggle('on')">Vulnerability</div>
+                <div class="chip-tog on" onclick="this.classList.toggle('on')">Kingdom urgency</div>
+              </div>
+            </div>
+          </div>
             <div class="ve-section-title">Language <em>Rules</em></div>
             <div class="ve-desc">Set explicit guardrails — words to never use and phrases to always include.</div>
             <div class="fg"><label class="fl" style="margin-bottom:8px">⛔ Never Use These Words</label>
@@ -748,13 +991,13 @@ const AGENTS=[
 ];
 
 const AUTOS=[
-  {id:'a1',ico:'✉️',name:'Sunday Newsletter',desc:'Drafts weekly newsletter using sermon notes + live email stats',sched:'Every Sunday · 6:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Sunday 6AM','🔔 Push + Email'],active:true,last:'Today 6:41 AM',agent:0,color:'#3B82F6'},
-  {id:'a2',ico:'📋',name:'Monday Exec Brief',desc:'Pulls dept updates + platform metrics → leadership summary',sched:'Every Monday · 7:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Monday 7AM','🔔 Push + Email'],active:true,last:'Today 7:00 AM',agent:10,color:'#64748B'},
-  {id:'a3',ico:'🎬',name:'Sermon Content Pack',desc:'Generates clips, hooks, devotionals after Sunday service',sched:'Every Sunday · 1:00 PM',chips:['trigger','notify'],chipTxt:['⚡ Post-Service Trigger','🔔 Push + Slack'],active:true,last:'Today 1:32 PM',agent:11,color:'#DC2626'},
-  {id:'a4',ico:'📱',name:'Weekly Social Brief',desc:'Builds social content plan using top-performing post data',sched:'Every Friday · 9:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Friday 9AM','🔔 Push + Email'],active:true,last:'Fri Apr 18',agent:7,color:'#F97316'},
-  {id:'a5',ico:'📊',name:'Newsletter Optimizer',desc:'Analyzes send performance and generates next-week improvements',sched:'Every Monday · 8:00 AM',chips:['trigger','notify'],chipTxt:['⚡ Post-Send Trigger','🔔 Email'],active:true,last:'Mon Apr 21',agent:2,color:'#8B5CF6'},
-  {id:'a6',ico:'⚡',name:'Initiative Tracker',desc:'Weekly status on all Champion Initiatives with risk flags',sched:'Every Monday · 9:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Monday 9AM','🔔 Push + Email'],active:true,last:'Mon Apr 21',agent:19,color:'#B45309'},
-  {id:'a7',ico:'📈',name:'Performance Pulse',desc:'Mid-week content analytics with goal-progress report',sched:'Every Wednesday · 2:00 PM',chips:['schedule'],chipTxt:['⏱ Every Wed 2PM'],active:false,last:'Wed Apr 16',agent:13,color:'#059669'},
+  {id:'a1',ico:'✉️',name:'Sunday Newsletter',desc:'Drafts weekly newsletter using sermon notes + live email stats',sched:'Every Sunday · 6:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Sunday 6AM','🔔 Push + Email'],active:true,last:'Today 6:41 AM',agent:0,color:'#3B82F6',goal:'Grow email open rate to 40% and increase Sunday attendance'},
+  {id:'a2',ico:'📋',name:'Monday Exec Brief',desc:'Pulls dept updates + platform metrics → leadership summary',sched:'Every Monday · 7:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Monday 7AM','🔔 Push + Email'],active:true,last:'Today 7:00 AM',agent:10,color:'#64748B',goal:'Keep leadership informed and flag risks before they become problems'},
+  {id:'a3',ico:'🎬',name:'Sermon Content Pack',desc:'Generates clips, hooks, devotionals after Sunday service',sched:'Every Sunday · 1:00 PM',chips:['trigger','notify'],chipTxt:['⚡ Post-Service Trigger','🔔 Push + Slack'],active:true,last:'Today 1:32 PM',agent:11,color:'#DC2626',goal:'Saturate YouTube and social with 7+ pieces of content every week'},
+  {id:'a4',ico:'📱',name:'Weekly Social Brief',desc:'Builds social content plan using top-performing post data',sched:'Every Friday · 9:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Friday 9AM','🔔 Push + Email'],active:true,last:'Fri Apr 18',agent:7,color:'#F97316',goal:'Double YouTube CTR to 8% and grow Instagram reach 20% by Q2'},
+  {id:'a5',ico:'📊',name:'Newsletter Optimizer',desc:'Analyzes send performance and generates next-week improvements',sched:'Every Monday · 8:00 AM',chips:['trigger','notify'],chipTxt:['⚡ Post-Send Trigger','🔔 Email'],active:true,last:'Mon Apr 21',agent:2,color:'#8B5CF6',goal:'Grow email open rate from 34% to 40% by end of Q2'},
+  {id:'a6',ico:'⚡',name:'Initiative Tracker',desc:'Weekly status on all Champion Initiatives with risk flags',sched:'Every Monday · 9:00 AM',chips:['schedule','notify'],chipTxt:['⏱ Every Monday 9AM','🔔 Push + Email'],active:true,last:'Mon Apr 21',agent:19,color:'#B45309',goal:'Ensure no initiative falls behind without early warning'},
+  {id:'a7',ico:'📈',name:'Performance Pulse',desc:'Mid-week content analytics with goal-progress report',sched:'Every Wednesday · 2:00 PM',chips:['schedule'],chipTxt:['⏱ Every Wed 2PM'],active:false,last:'Wed Apr 16',agent:13,color:'#059669',goal:'Track content performance and identify what to scale each week'},
 ];
 
 const GOALS=[
@@ -773,12 +1016,307 @@ const NOTIFS=[
 ];
 
 const VAULT=[
-  {ico:'✉️',name:'Week 3 Newsletter — "When the Ground Shifts"',prev:'Subject: When everything around you is shaking…',time:'Today 6:41 AM',cat:'Newsletter',catColor:'#3B82F6',color:'#3B82F6'},
-  {ico:'📱',name:'Social Brief — Unshakeable Week 3',prev:'Hook: "What do you do when the ground beneath you moves?"',time:'Yesterday 9:12 PM',cat:'Marketing',catColor:'#F97316',color:'#F97316'},
-  {ico:'🎬',name:'Content Pack — "Still Standing" Week 2',prev:'3 YouTube clips · 2 Reel hooks · 3-day devotional',time:'Mon Apr 21',cat:'Ops',catColor:'#DC2626',color:'#DC2626'},
-  {ico:'🚀',name:"Women's Conference Campaign — 'She Stands'",prev:'5-week rollout · Identity, Courage, Legacy',time:'Fri Apr 18',cat:'Marketing',catColor:'#EC4899',color:'#EC4899'},
-  {ico:'📋',name:'Monday Executive Brief — April 21',prev:'Attendance +8%, YouTube CTR 5.2%, Production SOP update needed',time:'Mon Apr 21',cat:'Ops',catColor:'#64748B',color:'#64748B'},
-  {ico:'🕊️',name:'Testimony Story — Marcus (Marriage Restoration)',prev:'Impact Video Script: "I watched Unshakeable Week 1 alone in my car…"',time:'Wed Apr 16',cat:'Story',catColor:'#9333EA',color:'#9333EA'},
+  {
+    ico:'✉️',name:'Week 3 Newsletter — "When the Ground Shifts"',
+    prev:'Subject: When everything around you is shaking…',
+    time:'Today 6:41 AM',cat:'Newsletter',catColor:'#3B82F6',color:'#3B82F6',
+    content:`SUBJECT LINE OPTIONS
+1. "When everything around you is shaking — here's what doesn't move"
+2. "Psalm 46 changed how I face hard weeks. Here's why."
+3. "The ground shifted this week. Here's your anchor."
+
+——————————————————
+
+Hey TC family,
+
+Week 3 of Unshakeable.
+
+This Sunday, Pastor M walked us through Psalm 46 — and what hit the room wasn't just the scripture. It was the timing. A lot of you are in seasons where the ground feels like it's moving. Jobs. Relationships. Health. Uncertainty.
+
+And Psalm 46 says: God is our refuge and strength, a very present help in trouble.
+
+Not a distant God. A present one.
+
+——————————————————
+
+LIFE CHANGE THIS WEEK
+
+Marcus — one of our online community members — sent us this on Sunday afternoon:
+
+"I watched Week 1 of Unshakeable in my car on a Tuesday. I'd just left a conversation that I thought ended my marriage. By Week 3, my wife and I watched together. We're in counseling now. The series gave us language we didn't have."
+
+That's why we do this.
+
+——————————————————
+
+THIS WEEK AT TC
+
+→ Baptism Sunday is coming — April 27
+   If you've been on the fence, this is your moment. Register at tc.church/baptism
+
+→ Women's Conference — May 17
+   "She Stands" — an evening of worship, teaching, and community. Tickets moving fast.
+
+→ Small Groups forming now
+   The best way to go deeper isn't online — it's around a table. Find one at tc.church/groups
+
+In it with you,
+Transformation Church`
+  },
+  {
+    ico:'📱',name:'Social Brief — Unshakeable Week 3',
+    prev:'Hook: "What do you do when the ground beneath you moves?"',
+    time:'Yesterday 9:12 PM',cat:'Marketing',catColor:'#F97316',color:'#F97316',
+    content:`WEEKLY SOCIAL CONTENT BRIEF
+Week 3 · "Unshakeable" · When the Ground Shifts
+
+THEME: Anchor. When external circumstances shake, God is immovable. Position TC as a voice of stability — not positivity — in an unstable world.
+
+——————————————————
+
+INSTAGRAM (4 posts)
+
+Post 1 — Sunday Drop
+Format: Sermon clip — the moment Pastor M paused mid-message
+Caption: "Stop waiting for the shaking to stop. Learn to stand while it's still moving."
+Hook: Opens on silence. No music. Let the pause breathe.
+
+Post 2 — Testimony Tuesday
+Format: Static quote card
+Copy: "I watched Week 1 in my car on a Tuesday. By Week 3, my wife sat down next to me." — Marcus
+CTA: "Your story is next. We're saving you a seat."
+
+Post 3 — Thursday Depth
+Format: Carousel — 5 slides
+Headline: "5 things Psalm 46 is saying to your specific season"
+
+Post 4 — Saturday Hype
+Format: Reel — countdown to Sunday
+Text overlay: "Week 4 is the one you've been waiting for"
+
+——————————————————
+
+TIKTOK / REELS (3 hooks)
+
+Hook 1: "I used to think faith meant nothing shook you. Psalm 46 changed everything."
+Hook 2: "He didn't say IF the earth gives way. He said WHEN. There's a difference."
+Hook 3: Start mid-sentence — "…and that's when the room went completely silent."
+
+——————————————————
+
+POSTING CADENCE
+Sun 12:30 PM → Clip drop
+Tue 9:00 AM → Testimony card
+Thu 7:00 PM → Carousel
+Sat 11:00 AM → Hype reel`
+  },
+  {
+    ico:'🎬',name:'Content Pack — "Still Standing" Week 2',
+    prev:'3 YouTube clips · 2 Reel hooks · 3-day devotional',
+    time:'Mon Apr 21',cat:'Ops',catColor:'#DC2626',color:'#DC2626',
+    content:`SERMON CONTENT PACK
+"Still Standing" — Unshakeable Week 2
+Hebrews 11:1
+
+YOUTUBE CLIPS (3)
+
+Clip 1 — "The Faith Definition Nobody Talks About"
+Timestamp: 14:22 – 19:08
+Thumbnail: Close-up, expressive, text: "FAITH IS NOT WHAT YOU THINK"
+Hook: "We've been defining faith wrong for decades."
+
+Clip 2 — The Story of the Woman in the Crowd
+Timestamp: 28:14 – 33:52
+Thumbnail: text: "12 YEARS. ONE MOMENT."
+Hook: "She didn't ask for permission. She just reached."
+
+Clip 3 — The Closing Moment
+Timestamp: 48:00 – 52:20
+Thumbnail: Wide shot of room, text: "YOU'RE STILL STANDING"
+Hook: "If you're watching this, you made it through something."
+
+——————————————————
+
+REEL HOOKS
+
+Reel 1: "Faith is spelled R-I-S-K." (45 seconds, talking head)
+Reel 2: "The room went quiet for 22 seconds." (Build suspense, play the clip)
+
+——————————————————
+
+3-DAY DEVOTIONAL
+
+Day 1 — The Weight of Waiting
+"Hebrews 11 opens with a definition — not a feeling. Faith is the substance of what you're hoping for..."
+
+Day 2 — The Woman's Risk
+"She had been bleeding for 12 years. She had no medical solution, no social standing..."
+
+Day 3 — What Still Standing Looks Like
+"There's a difference between enduring and standing. Enduring is passive. Standing is active..."
+
+——————————————————
+
+QUOTE GRAPHICS (5)
+
+1. "Faith doesn't remove the storm. It tells you who's in the boat."
+2. "She reached through the crowd because she was done waiting for the crowd to move."
+3. "Still standing isn't a position. It's a declaration."
+4. "The evidence of things not seen — that's warfare, not wishful thinking."
+5. "You didn't get here by accident. You got here because something in you refused to quit."`
+  },
+  {
+    ico:'🚀',name:"Women's Conference Campaign — 'She Stands'",
+    prev:'5-week rollout · Identity, Courage, Legacy',
+    time:'Fri Apr 18',cat:'Marketing',catColor:'#EC4899',color:'#EC4899',
+    content:`CAMPAIGN STRATEGY
+"She Stands" — Women's Conference 2025
+May 17 · Transformation Church · Tulsa, Oklahoma
+
+CAMPAIGN OVERVIEW
+She Stands is not just a conference. It's a declaration. For every woman who has been told she's too much, not enough, or too late — this night is the interruption. Built around Isaiah 54.
+
+——————————————————
+
+MESSAGING PILLARS
+
+1. IDENTITY — "You were made for this room."
+She doesn't need to earn her place. She's already been given it.
+
+2. COURAGE — "Stand up. Show up. Speak."
+The moment between fear and movement. This pillar invites action.
+
+3. LEGACY — "What she does tonight echoes."
+Every woman carries someone behind her — a daughter, a younger version of herself.
+
+——————————————————
+
+5-WEEK ROLLOUT
+
+Week 1 (Apr 21) — ANNOUNCE
+"Something is happening May 17." Teaser campaign. No full reveal yet.
+
+Week 2 (Apr 28) — REVEAL
+Full reveal. "She Stands." Speaker announcement + ticket link goes live.
+Email subject: "She stands. Will you?"
+
+Week 3 (May 5) — SOCIAL PROOF
+Testimonies from past conferences. Women tagging who they're bringing.
+
+Week 4 (May 12) — URGENCY
+Tickets are moving. Countdown begins. Final seat push.
+
+Week 5 (May 17) — ACTIVATION
+Morning of. Social blitz. "Today is the day." Live content during event.
+
+——————————————————
+
+CREATIVE DIRECTION
+Color: Black, deep ivory, antique gold
+Typography: Serif-forward — dignified, not trendy
+Tone: Prophetic warmth. Not hype. Spirit-led invitation.`
+  },
+  {
+    ico:'📋',name:'Monday Executive Brief — April 21',
+    prev:'Attendance +8%, YouTube CTR 5.2%, Production SOP update needed',
+    time:'Mon Apr 21',cat:'Ops',catColor:'#64748B',color:'#64748B',
+    content:`MONDAY EXECUTIVE BRIEF
+Week of April 21, 2025 · Transformation Church
+
+WEEK AT A GLANCE
+Strong Week 2 close for Unshakeable. Digital reach outpacing last series by 14%. In-person attendance held despite Spring weather. Women's Conference campaign is behind schedule on asset delivery.
+
+——————————————————
+
+METRICS SNAPSHOT
+
+In-Person Attendance: 2,612 (↑8%)
+Online Viewers: 17,100 (↑11%)
+YouTube CTR: 5.2% (up from 3.8%)
+Email Open Rate: 31.8% (↑3pts)
+New Email Subs: +284
+Instagram Reach: 28,400 (↑6%)
+Baptism Registrations: 47 confirmed
+
+——————————————————
+
+KEY WINS
+
+→ Sermon clip "The Faith Definition Nobody Talks About" — 12K views in 48 hours
+→ Marcus testimony DM confirmed for Impact Video production
+→ Email A/B test: Curiosity subject lines outperforming directive by 9 open-rate points
+
+——————————————————
+
+FLAGS / RISKS
+
+→ YELLOW: Women's Conference graphics 4 days behind. Impacts Week 3 promo launch.
+→ YELLOW: YouTube Shorts dropped to 1/week (target is 3).
+
+——————————————————
+
+THIS WEEK'S PRIORITIES
+
+1. Approve Women's Conference Week 3 assets (Tue EOD)
+2. Process sermon → full content pack (launch Thu)
+3. Baptism Sunday logistics confirmed for all departments
+
+——————————————————
+
+OPEN DECISIONS NEEDED
+
+→ Push conference ticket price point or hold for urgency?
+→ Move Baptism Sunday announcement to Week 3 newsletter?`
+  },
+  {
+    ico:'🕊️',name:'Testimony Story — Marcus (Marriage Restoration)',
+    prev:'Impact Video Script: "I watched Unshakeable Week 1 alone in my car…"',
+    time:'Wed Apr 16',cat:'Story',catColor:'#9333EA',color:'#9333EA',
+    content:`IMPACT STORY — 30-SECOND VIDEO SCRIPT
+Marcus · Marriage Restoration
+Source: Direct message, April 14 2025
+
+HOOK (0-5 seconds)
+[VISUAL: Empty car. Rain on the windshield. Silence.]
+[TEXT OVERLAY: "I was done."]
+
+THE BEFORE (5-18 seconds)
+MARCUS (V.O.):
+"I watched Week 1 of Unshakeable alone in my car on a Tuesday.
+I had just walked out of the worst conversation of my life.
+I thought it was over."
+
+THE ENCOUNTER (18-26 seconds)
+[VISUAL: Phone screen — TC live stream]
+MARCUS (V.O.):
+"Something in that message made me go home.
+And I put my phone on the TV.
+My wife sat down next to me without me asking."
+
+THE AFTER (26-30 seconds)
+[VISUAL: Marcus and wife — present day, warm, alive]
+MARCUS (V.O.):
+"We're in counseling now. The series gave us language we didn't have."
+[TEXT OVERLAY: "Your story isn't over."]
+
+——————————————————
+
+EMAIL VERSION (150 words)
+
+Marcus didn't plan to watch the sermon.
+
+He was sitting in his car — rain on the windows, the weight of what felt like a final conversation pressing down on him. He opened his phone and found TC streaming.
+
+He watched. He drove home. He put his phone on the TV without knowing why.
+
+His wife sat down next to him without being asked.
+
+By Week 3 of Unshakeable, they were watching together. They're in counseling now. The series gave them language they didn't have.
+
+"It saved my marriage," he said. "I know that sounds like a lot. But it's true."
+
+That's why we don't stop.`
+  },
 ];
 
 // ══════════════════════════════════════
@@ -863,19 +1401,27 @@ function toggleTile(id){
 // ══════════════════════════════════════
 // BUILD AUTOS
 // ══════════════════════════════════════
+// track outputs per automation
+const autoOutputs={};
+let spotlightAutoId=null;
+
 function makeAuto(a,container){
   const el=document.createElement('div');
   el.className=`ac ${a.active?'live':''}`;
+  el.id=`ac_${a.id}_${container.id}`;
   const chipColors={schedule:'chip-blue',notify:'chip-amber',trigger:'chip-purple',green:'chip-green'};
+  const lastOut=autoOutputs[a.id];
   el.innerHTML=`
     <div class="ac-ico" style="background:${a.color}18">${a.ico}</div>
     <div class="ac-body">
       <div class="ac-name">${a.name}</div>
       <div class="ac-desc">${a.desc}</div>
       <div class="ac-chips">${a.chips.map((c,i)=>`<span class="chip-sm ${chipColors[c]||'chip-blue'}">${a.chipTxt[i]}</span>`).join('')}</div>
+      ${lastOut?`<div class="ac-last-output has-output" onclick="event.stopPropagation();showSpotlight('${a.id}')">✓ Last output: ${lastOut.preview}</div>`:`<div class="ac-last-output">No output yet — press Run Now to generate</div>`}
     </div>
-    <div class="ac-right">
+    <div class="ac-right" style="gap:8px">
       <div class="ac-time"><strong>${a.last}</strong>Last Run</div>
+      <button class="ac-run-now" id="acrun_${a.id}_${container.id}" onclick="event.stopPropagation();runAutoNow('${a.id}',this)">▶ Run Now</button>
       <button class="tog-btn ${a.active?'on':''}" onclick="event.stopPropagation();toggleAuto('${a.id}',this)"></button>
     </div>`;
   el.onclick=()=>openSchedule(a.agent);
@@ -885,17 +1431,212 @@ function makeAuto(a,container){
 function buildAutos(){
   const h=document.getElementById('homeAutos');
   const all=document.getElementById('allAutos');
-  AUTOS.filter(a=>a.active).slice(0,3).forEach(a=>makeAuto(a,h));
-  AUTOS.forEach(a=>makeAuto(a,all));
+  if(h) AUTOS.filter(a=>a.active).slice(0,3).forEach(a=>makeAuto(a,h));
+  if(all) AUTOS.forEach(a=>makeAuto(a,all));
 }
 
 function toggleAuto(id,btn){
   const a=AUTOS.find(x=>x.id===id);
   a.active=!a.active;
   btn.classList.toggle('on',a.active);
-  const card=btn.closest('.ac');
-  if(card)card.classList.toggle('live',a.active);
+  const cards=document.querySelectorAll(`[id^="ac_${id}_"]`);
+  cards.forEach(c=>{if(c)c.classList.toggle('live',a.active)});
+  // update active count
+  const activeN=AUTOS.filter(x=>x.active).length;
+  const badge=document.getElementById('autoActiveCount');
+  if(badge)badge.textContent=activeN+' active';
   toast(a.active?'suc':'info',a.name,a.active?'Automation activated':'Automation paused');
+}
+
+async function runAutoNow(id,btn){
+  const a=AUTOS.find(x=>x.id===id);
+  if(!a){toast('err','Error','Automation not found');return;}
+  const agent=AGENTS[a.agent];
+  if(!agent){toast('err','Error','Agent not found');return;}
+
+  // Disable all Run Now buttons for this automation
+  document.querySelectorAll(`[id^="acrun_${id}_"]`).forEach(b=>{
+    b.disabled=true;b.textContent='⟳ Running…';b.classList.add('running');
+  });
+
+  // Open the drawer immediately in loading state
+  openDrawer(a.ico, a.color, a.name + ' — Generating…', 'Started just now…');
+  spotlightAutoId=id;
+
+  // Build system prompt from voice profile
+  const vName=document.getElementById('v_name')?.value||'Transformation Church';
+  const vMission=document.getElementById('v_mission')?.value||'Saved people serving people by showing the world Jesus';
+  const v3w=document.getElementById('v_3words')?.value||'Bold, Warm, Real';
+  const vNot=document.getElementById('v_not')?.value||'Religious, Corporate, Preachy';
+  const chips=[...document.querySelectorAll('#styleChips .chip-tog.on')].map(c=>c.textContent).join(', ');
+  const sample=document.getElementById('v_sample1')?.value||'';
+  const forbidden=[...document.querySelectorAll('#forbiddenTags .wtag')].map(t=>t.textContent.replace(' ✕','').trim()).join(', ');
+  const goal=a.goal||'';
+
+  const sys=`You are a ministry AI agent for ${vName}. Mission: "${vMission}". Voice: ${v3w}. Style: ${chips||'Bold, Warm, Spirit-led'}. NEVER sound: ${vNot}. Never use: ${forbidden||'churchy, preachy'}. This automation goal: "${goal}". Agent role: ${agent.name}. ${sample?`Match this voice style: "${sample.substring(0,200)}"`:''} Write in plain text. Be specific, practical, production-ready.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:agent.prompt}]})
+    });
+    const data=await resp.json();
+
+    if(data.error){
+      drawerShowError('API Error: '+data.error.message);
+      return;
+    }
+
+    const out=data.content?.map(b=>b.text||'').join('')||'No response received.';
+
+    // Update drawer header
+    document.getElementById('drawerName').textContent=a.name;
+    document.getElementById('drawerTime').textContent='Completed · '+new Date().toLocaleTimeString();
+    document.getElementById('drawerLoading').style.display='none';
+
+    // Show content area
+    document.getElementById('drawerEmpty').style.display='none';
+    const content=document.getElementById('drawerContent');
+    content.style.display='block';
+    content.textContent='';
+    content.classList.add('streaming');
+
+    // Show action buttons
+    document.getElementById('drawerCopyBtn').style.display='inline-flex';
+    document.getElementById('drawerVaultBtn').style.display='inline-flex';
+
+    // Store output
+    const preview=out.substring(0,65)+'…';
+    autoOutputs[id]={content:out,preview,time:new Date().toLocaleTimeString(),autoName:a.name,autoIco:a.ico,color:a.color};
+    a.last='Just now';
+
+    // Typewriter output into drawer
+    let i=0;const chars=out.split('');const spd=Math.max(4,Math.floor(3200/chars.length));
+    function type(){
+      if(i<chars.length){
+        content.textContent+=chars[i++];
+        document.getElementById('drawerScroll').scrollTop=99999;
+        setTimeout(type,spd);
+      }else{
+        content.classList.remove('streaming');
+        refreshAutoCards();
+        toast('suc',a.name,'Output ready — tap + Vault to save');
+        addNotification('suc','✅',a.name+' Complete',preview,'View Output,Save to Vault');
+      }
+    }
+    type();
+
+  }catch(e){
+    drawerShowError('Network error: '+e.message+'. Check your connection.');
+  }finally{
+    document.querySelectorAll(`[id^="acrun_${id}_"]`).forEach(b=>{
+      b.disabled=false;b.textContent='▶ Run Now';b.classList.remove('running');
+    });
+  }
+}
+
+function openDrawer(ico, color, name, time){
+  const drawer=document.getElementById('outputDrawer');
+  // Reset state
+  document.getElementById('drawerIco').textContent=ico;
+  document.getElementById('drawerIco').style.background=color+'20';
+  document.getElementById('drawerName').textContent=name;
+  document.getElementById('drawerTime').textContent=time;
+  document.getElementById('drawerLoading').style.display='flex';
+  document.getElementById('drawerEmpty').style.display='none';
+  document.getElementById('drawerContent').style.display='none';
+  document.getElementById('drawerContent').textContent='';
+  document.getElementById('drawerCopyBtn').style.display='none';
+  document.getElementById('drawerVaultBtn').style.display='none';
+  drawer.style.display='flex';
+  drawer.style.animation='drawerUp 0.3s cubic-bezier(0.22,1,0.36,1) both';
+}
+
+function closeDrawer(){
+  const drawer=document.getElementById('outputDrawer');
+  drawer.style.animation='drawerDown 0.25s ease both';
+  setTimeout(()=>{drawer.style.display='none';},240);
+}
+
+function drawerShowError(msg){
+  document.getElementById('drawerLoading').style.display='none';
+  document.getElementById('drawerEmpty').style.display='none';
+  const content=document.getElementById('drawerContent');
+  content.style.display='block';
+  content.textContent='⚠️ '+msg;
+  content.style.color='var(--red)';
+  toast('err','Agent Error',msg);
+}
+
+function copyDrawerOutput(){
+  const t=document.getElementById('drawerContent').textContent;
+  if(!t||t.startsWith('⚠️')){toast('info','Nothing to copy','Run the agent first');return;}
+  navigator.clipboard.writeText(t).then(()=>toast('suc','Copied!','Output copied to clipboard'));
+}
+
+function saveDrawerToVault(){
+  const t=document.getElementById('drawerContent').textContent;
+  if(!t||t.startsWith('⚠️')){toast('info','Nothing to save','Run the agent first');return;}
+  const name=document.getElementById('drawerName').textContent;
+  const id=spotlightAutoId;
+  const a=AUTOS.find(x=>x.id===id);
+  const agent=a?AGENTS[a.agent]:AGENTS[0];
+  VAULT.unshift({
+    ico:a?a.ico:'⚡',
+    name,
+    prev:t.substring(0,70)+'…',
+    content:t,
+    time:'Just now',
+    cat:agent?agent.cl:'Output',
+    catColor:agent?agent.color:'var(--gold)',
+    color:agent?agent.color:'var(--gold)'
+  });
+  selectedVaultIdx=null;
+  const vl=document.getElementById('vaultList');
+  if(vl){vl.innerHTML='';buildVault();}
+  toast('suc','Saved to Vault',name+' stored — open Vault to read it');
+  document.getElementById('drawerVaultBtn').textContent='✓ Saved';
+  document.getElementById('drawerVaultBtn').style.background='var(--green)';
+}
+
+function refreshAutoCards(){
+  ['homeAutos','allAutos'].forEach(cid=>{
+    const c=document.getElementById(cid);
+    if(!c)return;
+    c.innerHTML='';
+    if(cid==='homeAutos') AUTOS.filter(a=>a.active).slice(0,3).forEach(a=>makeAuto(a,c));
+    else AUTOS.forEach(a=>makeAuto(a,c));
+  });
+}
+
+function showSpotlight(id){
+  const out=autoOutputs[id];
+  if(!out)return;
+  openDrawer(out.autoIco, out.color, out.autoName, out.time);
+  document.getElementById('drawerLoading').style.display='none';
+  document.getElementById('drawerEmpty').style.display='none';
+  const content=document.getElementById('drawerContent');
+  content.style.display='block';
+  content.textContent=out.content;
+  content.style.color='var(--cream)';
+  document.getElementById('drawerCopyBtn').style.display='inline-flex';
+  document.getElementById('drawerVaultBtn').style.display='inline-flex';
+  document.getElementById('drawerVaultBtn').textContent='+ Vault';
+  document.getElementById('drawerVaultBtn').style.background='';
+  spotlightAutoId=id;
+}
+
+function copySpotlight(){copyDrawerOutput();}
+function saveSpotlightToVault(){saveDrawerToVault();}
+
+function addNotification(type,ico,title,desc,actions){
+  NOTIFS.unshift({type,ico,title,description:desc,unread:true,cls:type==='suc'?'suc':type==='info'?'info':'warn',actions:actions?actions.split(','):[]});
+  const list=document.getElementById('notifList');
+  if(list){list.innerHTML='';buildNotifs()}
+  // update badge
+  const badge=document.getElementById('notifBadge');
+  if(badge)badge.style.display='block';
 }
 
 // ══════════════════════════════════════
@@ -966,26 +1707,327 @@ function markAllRead(){
 // ══════════════════════════════════════
 // BUILD VAULT
 // ══════════════════════════════════════
-function buildVault(){
-  const list=document.getElementById('vaultList');
-  VAULT.forEach(v=>{
-    const el=document.createElement('div');
-    el.className='vi';
-    el.innerHTML=`
+let selectedVaultIdx = null;
+
+function buildVault(items){
+  const list = document.getElementById('vaultList');
+  if(!list) return;
+  const data = items || VAULT;
+  list.innerHTML = '';
+
+  // Update count
+  const countEl = document.getElementById('vaultCount');
+  if(countEl) countEl.textContent = data.length + ' output' + (data.length!==1?'s':'') + ' saved';
+
+  if(data.length === 0){
+    list.innerHTML = '<div style="padding:24px;text-align:center;opacity:0.4;font-size:12px;font-weight:700;color:var(--cream-dim)">No outputs found</div>';
+    return;
+  }
+
+  data.forEach((v, i)=>{
+    const el = document.createElement('div');
+    const isSelected = selectedVaultIdx === i;
+    el.className = 'vi';
+    el.id = 'vi_' + i;
+    el.style.cssText = isSelected
+      ? 'border-color:rgba(240,180,41,0.35);background:rgba(240,180,41,0.05);border-left:3px solid var(--gold);'
+      : '';
+    el.innerHTML = `
       <div class="vi-ico" style="background:${v.color}18">${v.ico}</div>
-      <div class="vi-body"><div class="vi-title">${v.name}</div><div class="vi-prev">${v.prev}</div></div>
+      <div class="vi-body">
+        <div class="vi-title">${v.name}</div>
+        <div class="vi-prev">${v.prev}</div>
+      </div>
       <div class="vi-right">
         <div class="vi-time">${v.time}</div>
         <span class="vi-cat" style="background:${v.catColor}18;color:${v.catColor}">${v.cat}</span>
       </div>`;
-    el.onclick=()=>toast('info','Vault','Opening output preview…');
+    el.onclick = () => openVaultItem(i, items);
     list.appendChild(el);
   });
+}
+
+function openVaultItem(idx, items){
+  const data = items || VAULT;
+  const v = data[idx];
+  if(!v) return;
+
+  selectedVaultIdx = idx;
+
+  // Highlight selected item
+  document.querySelectorAll('#vaultList .vi').forEach((el, i) => {
+    if(i === idx){
+      el.style.borderColor = 'rgba(240,180,41,0.35)';
+      el.style.background = 'rgba(240,180,41,0.05)';
+      el.style.borderLeft = '3px solid var(--gold)';
+    } else {
+      el.style.borderColor = '';
+      el.style.background = '';
+      el.style.borderLeft = '';
+    }
+  });
+
+  // Hide empty state, show preview
+  document.getElementById('vaultPreviewEmpty').style.display = 'none';
+  const previewContent = document.getElementById('vaultPreviewContent');
+  previewContent.style.display = 'flex';
+
+  // Populate header
+  const ico = document.getElementById('vpIco');
+  ico.textContent = v.ico;
+  ico.style.background = v.color + '18';
+
+  document.getElementById('vpName').textContent = v.name;
+  document.getElementById('vpTime').textContent = v.time;
+
+  const cat = document.getElementById('vpCat');
+  cat.textContent = v.cat;
+  cat.style.background = v.catColor + '18';
+  cat.style.color = v.catColor;
+
+  // Populate body
+  const text = document.getElementById('vpText');
+  text.textContent = '';
+
+  if(v.content){
+    // Animate content in
+    text.style.opacity = '0';
+    text.textContent = v.content;
+    requestAnimationFrame(()=>{
+      text.style.transition = 'opacity 0.3s ease';
+      text.style.opacity = '1';
+    });
+  } else {
+    // No full content — show preview + offer to regenerate
+    text.style.opacity = '1';
+    text.textContent = v.prev + '\n\n— Full content not available for this output.\n   Click ↺ Re-run to regenerate it.';
+  }
+
+  // Scroll preview to top
+  const vpBody = document.getElementById('vpBody');
+  if(vpBody) vpBody.scrollTop = 0;
+}
+
+function filterVault(query){
+  if(!query.trim()){
+    buildVault();
+    return;
+  }
+  const q = query.toLowerCase();
+  const filtered = VAULT.filter(v =>
+    v.name.toLowerCase().includes(q) ||
+    v.prev.toLowerCase().includes(q) ||
+    v.cat.toLowerCase().includes(q) ||
+    (v.content && v.content.toLowerCase().includes(q))
+  );
+  buildVault(filtered);
+}
+
+function copyVaultItem(){
+  // Copy whatever is in the preview pane
+  const text = document.getElementById('vpText');
+  if(!text || !text.textContent || document.getElementById('vaultPreviewEmpty').style.display !== 'none' === false){
+    // nothing selected
+    if(document.getElementById('vaultPreviewContent').style.display === 'none'){
+      toast('info','Nothing selected','Click an output on the left first');
+      return;
+    }
+  }
+  const content = text ? text.textContent : '';
+  if(!content){ toast('info','Nothing to copy','Select an output first'); return; }
+  navigator.clipboard.writeText(content).then(()=> toast('suc','Copied!','Full output copied to clipboard'));
+}
+
+function rerunVaultItem(){
+  if(selectedVaultIdx === null){ toast('info','Select an output','Click an output first'); return; }
+  const v = VAULT[selectedVaultIdx];
+  // Find matching agent by name
+  const agent = AGENTS.find(a => v.name.toLowerCase().includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(v.cat.toLowerCase()));
+  if(agent){
+    openAgent(agent.id);
+    toast('info','Re-running','Opening '+agent.name+' with same context');
+  } else {
+    openAgent(7); // default to social strategist
+    toast('info','Re-run','Opening agent — paste your context');
+  }
 }
 
 // ══════════════════════════════════════
 // AGENT MODAL
 // ══════════════════════════════════════
+// ══════════════════════════════════════
+// SMART FIELDS PER AGENT
+// ══════════════════════════════════════
+const AGENT_FIELDS = {
+  0: [ // Newsletter Builder
+    {id:'sermon_topic', label:'Sermon Topic / Series', type:'input', placeholder:'e.g. "When the Ground Shifts" — Psalm 46'},
+    {id:'announcements', label:'Key Announcements', type:'textarea', placeholder:'Upcoming events, sign-ups, key moments…'},
+    {id:'testimony', label:'Testimony or Life-Change Moment (optional)', type:'textarea', placeholder:'Paste a quote, DM, or story…', short:true},
+    {id:'cta_goal', label:'Primary CTA Goal', type:'select', options:['Watch Sunday Message','Register for Event','Give / Generosity','Join a Group','Download App']},
+  ],
+  1: [ // Personalization Engine
+    {id:'base_email', label:'Paste Your Base Newsletter Draft', type:'textarea', placeholder:'Paste the full email to personalize…'},
+    {id:'segment', label:'Generate Version For', type:'select', options:['First-Time Viewers','Consistent Attenders','Volunteers','Donors','Digital-Only Audience']},
+  ],
+  2: [ // Performance Optimizer
+    {id:'open_rate', label:'Last Open Rate (%)', type:'input', placeholder:'e.g. 34.2'},
+    {id:'click_rate', label:'Click Rate (%)', type:'input', placeholder:'e.g. 8.1'},
+    {id:'subject_used', label:'Subject Line Used', type:'input', placeholder:'Paste the subject line…'},
+    {id:'what_worked', label:'What Did You Notice? (optional)', type:'textarea', placeholder:'Sections that got replies, feedback, attention…', short:true},
+  ],
+  3: [ // Testimony Converter
+    {id:'raw_testimony', label:'Raw Testimony / Comment / DM', type:'textarea', placeholder:'Paste the raw story, transcript, or comment…'},
+    {id:'output_format', label:'Output Format', type:'select', options:['Newsletter Short Story (150 words)','Email Feature Block (250 words)','Social Caption + Quote','Video Script (30 sec)']},
+  ],
+  4: [ // Channel Sync
+    {id:'sermon_this_week', label:'This Week\'s Sermon Title + Theme', type:'input', placeholder:'e.g. "When the Ground Shifts" — Psalm 46'},
+    {id:'social_posts', label:'Planned Social Posts', type:'textarea', placeholder:'What\'s going out on Instagram, TikTok, Facebook…', short:true},
+    {id:'newsletter_draft', label:'Newsletter Draft (paste or describe)', type:'textarea', placeholder:'Paste draft or summarize what\'s in the email…', short:true},
+  ],
+  5: [ // Campaign Builder
+    {id:'series_title', label:'Series Title', type:'input', placeholder:'e.g. "Unshakeable"'},
+    {id:'theme', label:'Theme / Big Idea', type:'textarea', placeholder:'Core spiritual tension or truth this series addresses…', short:true},
+    {id:'scripture', label:'Key Scripture', type:'input', placeholder:'e.g. Hebrews 12:1-2'},
+    {id:'series_length', label:'Series Length', type:'select', options:['3 Weeks','4 Weeks','5 Weeks','6 Weeks','Single Event']},
+  ],
+  6: [ // Community Marketing
+    {id:'city', label:'Target City / Neighborhood', type:'input', placeholder:'e.g. Tulsa, OK — North Tulsa'},
+    {id:'initiative', label:'Initiative or Event to Promote', type:'input', placeholder:'e.g. Back to School Backpack Drive'},
+    {id:'audience', label:'Target Community Audience', type:'textarea', placeholder:'Who in the community are you trying to reach?', short:true},
+  ],
+  7: [ // Social Strategist
+    {id:'week_theme', label:'This Week\'s Theme or Series', type:'input', placeholder:'e.g. Week 3 of "Unshakeable"'},
+    {id:'content_goals', label:'Primary Content Goal', type:'select', options:['Grow New Audience','Drive Event Registration','Increase Watch Time','Build Community','Promote Series Launch']},
+    {id:'top_performing', label:'What Performed Best Last Week? (optional)', type:'textarea', placeholder:'e.g. "The testimony clip got 40K views"', short:true},
+  ],
+  8: [ // Creative Brief
+    {id:'project_name', label:'Project / Initiative Name', type:'input', placeholder:'e.g. "Rooted" Series Launch Graphics'},
+    {id:'objective', label:'What Does This Need to Accomplish?', type:'textarea', placeholder:'What action, feeling, or awareness should it create?', short:true},
+    {id:'deliverables', label:'Known Deliverables', type:'textarea', placeholder:'e.g. Series graphic, 3 IG posts, email header…', short:true},
+  ],
+  9: [ // Growth Engine
+    {id:'channel', label:'Channel to Experiment On', type:'select', options:['YouTube Thumbnails','Email Subject Lines','Instagram Hooks','TikTok Formats','Sermon Series Names','Event Promotion']},
+    {id:'current_result', label:'Current Performance Baseline', type:'textarea', placeholder:'e.g. YouTube CTR is 3.2%, avg for our size is 5-7%', short:true},
+    {id:'hypothesis', label:'Your Hypothesis (optional)', type:'input', placeholder:'What do you think might work better?'},
+  ],
+  10: [ // Exec Brief
+    {id:'attendance', label:'Sunday Attendance / Views', type:'input', placeholder:'e.g. In-person: 2,400 | Online: 14,000'},
+    {id:'dept_updates', label:'Department Updates', type:'textarea', placeholder:'Programming, Production, Marketing, Pastoral…'},
+    {id:'wins_risks', label:'Key Wins + Any Risks', type:'textarea', placeholder:'What went well? What\'s a concern?', short:true},
+  ],
+  11: [ // Sermon → Content
+    {id:'sermon_title', label:'Sermon Title', type:'input', placeholder:'e.g. "When the Ground Shifts"'},
+    {id:'key_points', label:'Key Points / Outline', type:'textarea', placeholder:'Paste outline, notes, or key moments from the message…'},
+    {id:'best_moment', label:'Best Quotable Moment or Story', type:'textarea', placeholder:'Most powerful line, story, or turn in the sermon…', short:true},
+  ],
+  12: [ // Journey Tracker
+    {id:'audience_data', label:'Audience Data (YouTube, email, in-person)', type:'textarea', placeholder:'e.g. 52K YouTube subs, 8K weekly online viewers, 2,400 in-person…'},
+    {id:'current_pathways', label:'Current Next-Step Pathways', type:'textarea', placeholder:'e.g. Watch → Subscribe → Membership Class → Small Groups…', short:true},
+    {id:'biggest_gap', label:'Where\'s the Biggest Drop-Off?', type:'input', placeholder:'e.g. People watch but never take a next step'},
+  ],
+  13: [ // Performance Analyst
+    {id:'platform_data', label:'Paste Performance Data (any format)', type:'textarea', placeholder:'YouTube views, IG reach/saves, email rates, attendance…'},
+    {id:'time_period', label:'Time Period', type:'select', options:['Last 7 Days','Last 30 Days','Last Quarter','Last Year','Series Run']},
+    {id:'content_question', label:'Your Specific Question', type:'input', placeholder:'e.g. "Why did our clip go viral last week?"'},
+  ],
+  14: [ // Story Mining
+    {id:'raw_stories', label:'Paste Raw Stories, Comments, or DMs', type:'textarea', placeholder:'Dump comments, DMs, emails, form submissions — all of it…'},
+    {id:'output_type', label:'What Do You Need?', type:'select', options:['Story Bank Summary','Impact Video Script (30 sec)','Email Testimonial Feature','Instagram Caption Story','Flag Top 3 for Production']},
+  ],
+  15: [ // Meeting Prep
+    {id:'meeting_type', label:'Meeting Type', type:'select', options:['1:1 Check-In','Department Team Meeting','Leadership/MGT Meeting','Cross-Team Alignment','Planning Session','Post-Meeting Debrief']},
+    {id:'meeting_context', label:'Meeting Context / Notes', type:'textarea', placeholder:'What\'s the meeting about? Topics, notes, issues…'},
+    {id:'participants', label:'Who\'s In the Room?', type:'input', placeholder:'e.g. Pastor M, Marketing Director, Production Lead'},
+  ],
+  16: [ // SOP Builder
+    {id:'process_dept', label:'Department / Area', type:'select', options:['Programming','Production','Marketing','Pastoral Care','Volunteer Management','Digital/Tech','Administration']},
+    {id:'process_dump', label:'Brain-Dump: How Does This Process Work?', type:'textarea', placeholder:'Describe the process however it lives in your head. Messy is fine.'},
+    {id:'process_goal', label:'What Should This SOP Ensure Never Breaks?', type:'input', placeholder:'e.g. "Sunday morning never starts without a tech run-through"'},
+  ],
+  17: [ // Content Calendar
+    {id:'planning_period', label:'Planning Period', type:'select', options:['Next 4 Weeks','Next Month','Quarter (3 Months)','Half Year']},
+    {id:'upcoming_series', label:'Upcoming Sermon Series', type:'textarea', placeholder:'List series titles, themes, dates…', short:true},
+    {id:'key_moments', label:'Key Church Moments / Events', type:'textarea', placeholder:'Easter, Women\'s Conference, Baptism Sunday, Giving Campaign…', short:true},
+  ],
+  18: [ // Internal Comms
+    {id:'comm_type', label:'Communication Type', type:'select', options:['Team All-Staff Email','Leadership Update','Transition / Change Announcement','Vision Cast Message','Appreciation / Recognition','Correction / Course Adjustment']},
+    {id:'comm_context', label:'Context and Key Points', type:'textarea', placeholder:'What needs to be said? What\'s the situation? What action is needed?'},
+    {id:'tone_notes', label:'Tone Notes (optional)', type:'input', placeholder:'e.g. "Firm but encouraging"'},
+  ],
+  19: [ // Initiative Tracker
+    {id:'initiatives', label:'Active Initiatives / Champion Initiatives', type:'textarea', placeholder:'List each with owner, deadline, and current status…'},
+    {id:'wins', label:'Wins This Quarter', type:'textarea', placeholder:'What\'s been completed or celebrated?', short:true},
+    {id:'concerns', label:'Concerns or Stalled Initiatives', type:'textarea', placeholder:'What\'s behind, unclear, or needs a decision?', short:true},
+  ],
+};
+
+function buildSmartFields(agentId){
+  const fields = AGENT_FIELDS[agentId];
+  const container = document.getElementById('amSmartFields');
+  container.innerHTML = '';
+  if(!fields){ 
+    // fallback generic textarea
+    container.innerHTML = `<textarea class="am-textarea" id="amInput" placeholder="Describe what you need — or press Run to use smart defaults…"></textarea>`;
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-bottom:9px;';
+  fields.forEach(f => {
+    const fg = document.createElement('div');
+    fg.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+    const lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--cream-dim);font-family:"DM Mono",monospace;';
+    lbl.textContent = f.label;
+    fg.appendChild(lbl);
+    if(f.type === 'select'){
+      const sel = document.createElement('select');
+      sel.id = 'sf_' + f.id;
+      sel.className = 'am-textarea';
+      sel.style.minHeight = 'unset';
+      sel.style.padding = '8px 11px';
+      sel.style.cursor = 'pointer';
+      f.options.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; op.style.background='#1a1a1c'; sel.appendChild(op); });
+      fg.appendChild(sel);
+    } else if(f.type === 'textarea'){
+      const ta = document.createElement('textarea');
+      ta.id = 'sf_' + f.id;
+      ta.className = 'am-textarea';
+      ta.placeholder = f.placeholder || '';
+      ta.style.minHeight = f.short ? '52px' : '72px';
+      fg.appendChild(ta);
+    } else {
+      const inp = document.createElement('input');
+      inp.id = 'sf_' + f.id;
+      inp.className = 'am-textarea';
+      inp.style.minHeight = 'unset';
+      inp.style.padding = '9px 11px';
+      inp.placeholder = f.placeholder || '';
+      fg.appendChild(inp);
+    }
+    wrap.appendChild(fg);
+  });
+  container.appendChild(wrap);
+}
+
+function getSmartFieldsContent(agentId){
+  const fields = AGENT_FIELDS[agentId];
+  if(!fields){
+    const el = document.getElementById('amInput');
+    return el ? el.value.trim() : '';
+  }
+  let content = '';
+  let hasAnyValue = false;
+  fields.forEach(f => {
+    const el = document.getElementById('sf_' + f.id);
+    if(el && el.value && el.value.trim()){
+      content += `**${f.label}:**\n${el.value.trim()}\n\n`;
+      hasAnyValue = true;
+    }
+  });
+  // Fall back to agent default prompt if nothing filled in
+  return hasAnyValue ? content.trim() : AGENTS[agentId].prompt;
+}
+
 function openAgent(id){
   const a=AGENTS[id];
   currentAgent=id;
@@ -1001,14 +2043,14 @@ function openAgent(id){
   document.getElementById('amLoad').classList.remove('active');
   document.getElementById('amOut').classList.remove('visible');
   document.getElementById('amOut').textContent='';
-  document.getElementById('amInput').value='';
-  document.getElementById('amInput').placeholder=a.prompt.substring(0,75)+'…';
+  // Build smart fields for this agent
+  buildSmartFields(id);
   document.getElementById('agentOverlay').classList.add('open');
 }
 
 async function runAgent(){
   const a=AGENTS[currentAgent];
-  const input=document.getElementById('amInput').value.trim()||a.prompt;
+  const input = getSmartFieldsContent(currentAgent);
   const btn=document.getElementById('amRunBtn');
   btn.disabled=true;btn.textContent='⟳ Running…';
   document.getElementById('amEmpty').style.display='none';
@@ -1025,7 +2067,7 @@ async function runAgent(){
   const sample1=document.getElementById('v_sample1')?.value||'';
   const forbidden=[...document.querySelectorAll('#forbiddenTags .wtag')].map(t=>t.textContent.replace(' ✕','').trim()).join(', ');
 
-  const sys=`You are a ministry AI agent for ${vName}. Mission: "${vMission}". Voice: ${v3w}. Style: ${chips||'Bold, Warm, Spirit-led'}. NEVER sound: ${vNot}. Never use: ${forbidden||'churchy, preachy'}. Agent role: ${a.name}. ${sample1?`Match this voice style: "${sample1.substring(0,200)}"`:''} Write in plain text. Be specific, practical, and production-ready. No generic filler.`;
+  const sys=`You are a ministry AI agent for ${vName}. Mission: "${vMission}". Voice: ${v3w}. Style: ${chips||'Bold, Warm, Spirit-led'}. NEVER sound: ${vNot}. Never use: ${forbidden||'churchy, preachy'}. Agent role: ${a.name}. ${sample1?`Match this voice style: "${sample1.substring(0,200)}"`:''} ${document.getElementById('v_audience')?.value?`Audience: ${document.getElementById('v_audience').value.substring(0,100)}`:''} ${document.getElementById('v_pastor_name')?.value?`Pastor: ${document.getElementById('v_pastor_name').value}. Opens emails with "${document.getElementById('v_pastor_open')?.value||'Hey family,'}". Closes with "${document.getElementById('v_pastor_close')?.value||'In it with you,'}".`:''} Write in plain text. Be specific, practical, and production-ready. No generic filler.`;
 
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
@@ -1034,19 +2076,26 @@ async function runAgent(){
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:input}]})
     });
     const data=await resp.json();
+    if(data.error){ throw new Error(data.error.message); }
     const out=data.content?.map(b=>b.text||'').join('')||'No response received.';
     document.getElementById('amLoad').classList.remove('active');
     const outEl=document.getElementById('amOut');
     outEl.classList.add('visible','streaming');
     outEl.textContent='';
     let i=0;const chars=out.split('');const spd=Math.max(5,Math.floor(3000/chars.length));
-    function type(){if(i<chars.length){outEl.textContent+=chars[i++];document.getElementById('amBox').scrollTop=9999;setTimeout(type,spd)}else{outEl.classList.remove('streaming');toast('suc',a.name,'Output ready — saved to vault')}}
+    function type(){if(i<chars.length){outEl.textContent+=chars[i++];document.getElementById('amBox').scrollTop=9999;setTimeout(type,spd)}else{
+      outEl.classList.remove('streaming');
+      toast('suc',a.name,'Output ready — saved to vault');
+      VAULT.unshift({ico:a.ico,name:a.name+' Output',prev:out.substring(0,70)+'…',content:out,time:'Just now',cat:a.cl,catColor:a.color,color:a.color});
+      selectedVaultIdx=null;
+      const vl=document.getElementById('vaultList');if(vl){vl.innerHTML='';buildVault();}
+    }}
     type();
     agStates[a.id]='on';
   }catch(e){
     document.getElementById('amLoad').classList.remove('active');
     document.getElementById('amOut').classList.add('visible');
-    document.getElementById('amOut').textContent='Error: '+e.message;
+    document.getElementById('amOut').textContent='⚠️ Error: '+e.message;
   }finally{btn.disabled=false;btn.textContent='▶ Run Now'}
 }
 
@@ -1092,9 +2141,9 @@ function voiceTab(i,el){
   el.classList.add('active');
   document.getElementById('vp'+i).classList.add('active');
   veSection=i;
-  // Move test area to active panel
+  // Move test area to active panel (only panels 0-4, not audience/pastor)
   const ta=document.getElementById('voiceTestArea');
-  document.getElementById('vp'+i).appendChild(ta);
+  if(i<=4) document.getElementById('vp'+i).appendChild(ta);
 }
 
 function selTone(el,val){
